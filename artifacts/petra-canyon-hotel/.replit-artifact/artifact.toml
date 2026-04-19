@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Petra Canyon Hotel"
+version = "1.0.0"
+id = "artifacts/petra-canyon-hotel"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24117
+
+[services.development]
+run = "pnpm --filter @workspace/petra-canyon-hotel run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/petra-canyon-hotel", "run", "build" ]
+publicDir = "artifacts/petra-canyon-hotel/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24117"
+BASE_PATH = "/"
