@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { BookingWidget } from "@/components/BookingWidget";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { useLanguage } from "@/components/LanguageProvider";
-import { amenityHighlights, diningMoments, roomCatalog, siteImages } from "@/content/site-content";
+import { amenityHighlights, diningMoments, getLocalizedRoom, roomCatalog, siteImages } from "@/content/site-content";
 import slide1 from "../../../../img/صور رأيسية/صورة1.jpeg";
 import slide2 from "../../../../img/صور رأيسية/صورة2.jpeg";
 import slide3 from "../../../../img/صور رأيسية/صورة3.jpeg";
@@ -17,7 +17,7 @@ const LOGO_SRC = `${import.meta.env.BASE_URL}petra-canyon-logo.png?v=3`;
 const HOME_HERO_SLIDES = [slide1, slide2, slide3, slide4, slide5];
 
 export default function Home() {
-  const { t, dir, language } = useLanguage();
+  const { t, language } = useLanguage();
 
   const roomPreviewDescriptions = {
     en: {
@@ -78,7 +78,7 @@ export default function Home() {
   const copy =
     language === "ar"
       ? {
-          heroTitle: "\u062A\u062C\u0631\u0628\u0629 \u0625\u0642\u0627\u0645\u0629 \u0645\u062A\u0643\u0627\u0645\u0644\u0629 \u0628\u062A\u0635\u0645\u064A\u0645 \u0623\u0646\u064A\u0642 \u0648\u0648\u0627\u0636\u062D",
+          heroTitle: "\u062A\u062C\u0631\u0628\u0629 \u0625\u0642\u0627\u0645\u0629 \u0645\u062A\u0643\u0627\u0645\u0644\u0629",
           exploreEyebrow: "\u0627\u0643\u062A\u0634\u0641 \u0627\u0644\u0641\u0646\u062F\u0642",
           exploreTitle: "\u0643\u0644 \u0642\u0633\u0645 \u0623\u0633\u0627\u0633\u064A \u0623\u0635\u0628\u062D \u0644\u0647 \u0635\u0641\u062D\u062A\u0647 \u0627\u0644\u062E\u0627\u0635\u0629",
           exploreBody:
@@ -111,11 +111,10 @@ export default function Home() {
           diningTitle: "\u062A\u062C\u0631\u0628\u0629 \u0645\u0637\u0639\u0645 \u0623\u063A\u0646\u0649 \u0648\u0623\u0643\u062B\u0631 \u0639\u0645\u0642\u0627\u064B",
           diningLink: "\u0627\u0630\u0647\u0628 \u0625\u0644\u0649 \u0635\u0641\u062D\u0629 \u0627\u0644\u0645\u0637\u0639\u0645",
           heroBadge: "\u0641\u0646\u062F\u0642 \u0628\u062A\u0631\u0627 \u0643\u0627\u0646\u064A\u0648\u0646",
-          desktopBrand: "Petra Canyon",
         }
       : language === "fr"
         ? {
-            heroTitle: "Une exp\u00E9rience de s\u00E9jour compl\u00E8te, con\u00E7ue avec plus d'\u00E9l\u00E9gance",
+            heroTitle: "Une exp\u00E9rience de s\u00E9jour compl\u00E8te",
             exploreEyebrow: "D\u00E9couvrir l'h\u00F4tel",
             exploreTitle: "Chaque grand espace dispose maintenant de sa propre page",
             exploreBody:
@@ -148,10 +147,9 @@ export default function Home() {
             diningTitle: "Une pr\u00E9sentation du restaurant plus riche et plus immersive",
             diningLink: "Voir la page restaurant",
             heroBadge: "Hotel Petra Canyon",
-            desktopBrand: "Petra Canyon",
           }
         : {
-            heroTitle: "A complete stay experience with a more polished multi-page design",
+            heroTitle: "A complete stay experience",
             exploreEyebrow: "Explore the hotel",
             exploreTitle: "Each major area now has its own dedicated page",
             exploreBody:
@@ -184,7 +182,6 @@ export default function Home() {
             diningTitle: "Restaurant storytelling with more depth",
             diningLink: "View dining page",
             heroBadge: "Petra Canyon Hotel",
-            desktopBrand: "Petra Canyon",
           };
 
   return (
@@ -202,12 +199,6 @@ export default function Home() {
         />
 
         <div className="relative container mx-auto px-4 pb-10 sm:px-6 sm:pb-14 lg:pb-18">
-          <div className={`mb-8 hidden lg:flex ${dir === "rtl" ? "justify-end" : "justify-start"}`}>
-            <div className="rounded-full border border-white/15 bg-white/8 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.38em] text-white/90">
-              {copy.desktopBrand}
-            </div>
-          </div>
-
           <div className="mx-auto max-w-4xl text-center text-white">
             <div className="mx-auto mb-8 hidden w-full justify-center lg:flex">
               <img
@@ -291,12 +282,12 @@ export default function Home() {
               {roomCatalog.slice(0, 2).map((room) => (
                 <div key={room.key} className="rounded-[1.5rem] border border-white/60 bg-white/80 p-5 shadow-[0_18px_55px_rgba(49,27,18,0.07)] backdrop-blur-sm transition-transform duration-500 hover:-translate-y-1">
                   <div className="flex items-center justify-between gap-4">
-                    <h3 className="text-xl font-serif">{t.rooms[room.key].name}</h3>
+                    <h3 className="text-xl font-serif">{getLocalizedRoom(room, language).name}</h3>
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                       {room.size}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{roomPreviewCopy[room.key]}</p>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{getLocalizedRoom(room, language).description}</p>
                 </div>
               ))}
             </div>

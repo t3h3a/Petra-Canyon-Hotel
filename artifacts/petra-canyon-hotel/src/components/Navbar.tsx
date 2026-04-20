@@ -147,7 +147,9 @@ export function Navbar() {
                 src={LOGO_SRC}
                 alt="Petra Canyon logo"
                 className={`h-10 w-14 shrink-0 object-contain transition-all ${
-                  isScrolled ? "opacity-100 drop-shadow-[0_8px_18px_rgba(0,0,0,0.18)]" : "opacity-100 drop-shadow-[0_10px_18px_rgba(0,0,0,0.45)]"
+                  isScrolled
+                    ? "opacity-100 drop-shadow-[0_8px_18px_rgba(0,0,0,0.18)]"
+                    : "opacity-100 brightness-0 invert drop-shadow-[0_10px_18px_rgba(0,0,0,0.45)]"
                 }`}
               />
               <span

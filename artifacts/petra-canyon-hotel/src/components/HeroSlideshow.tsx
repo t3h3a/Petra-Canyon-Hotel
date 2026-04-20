@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type HeroSlideshowProps = {
   slides: readonly string[];
@@ -22,48 +22,74 @@ export function HeroSlideshow({
   const effectiveSlides = slides.length > 0 ? slides : [fallbackImage];
   const [activeSlide, setActiveSlide] = useState(0);
   const [failedSlides, setFailedSlides] = useState<Record<string, boolean>>({});
+  const [loadedSlides, setLoadedSlides] = useState<Record<string, boolean>>({});
+
+  const resolvedSlides = useMemo(
+    () => effectiveSlides.map((slide) => (failedSlides[slide] ? fallbackImage : slide)),
+    [effectiveSlides, failedSlides, fallbackImage],
+  );
 
   useEffect(() => {
     setActiveSlide(0);
   }, [slides.length]);
 
   useEffect(() => {
-    if (effectiveSlides.length <= 1) return;
+    const uniqueSlides = Array.from(new Set([...effectiveSlides, fallbackImage]));
+
+    uniqueSlides.forEach((slide) => {
+      const image = new Image();
+      image.src = slide;
+      image.onload = () => {
+        setLoadedSlides((current) => ({ ...current, [slide]: true }));
+      };
+      image.onerror = () => {
+        if (slide !== fallbackImage) {
+          setFailedSlides((current) => ({ ...current, [slide]: true }));
+        }
+      };
+    });
+  }, [effectiveSlides, fallbackImage]);
+
+  useEffect(() => {
+    if (resolvedSlides.length <= 1) return;
 
     const interval = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % effectiveSlides.length);
+      setActiveSlide((current) => (current + 1) % resolvedSlides.length);
     }, intervalMs);
 
     return () => window.clearInterval(interval);
-  }, [effectiveSlides.length, intervalMs]);
+  }, [resolvedSlides.length, intervalMs]);
 
   return (
     <>
       <div className="absolute inset-0 overflow-hidden">
-        <div
-          className="flex h-full w-full transition-transform duration-[1600ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform"
-          style={{ transform: `translate3d(-${activeSlide * 100}%, 0, 0)` }}
-        >
-          {effectiveSlides.map((slide, index) => {
-            const src = failedSlides[slide] ? fallbackImage : slide;
+        {resolvedSlides.map((slide, index) => {
+          const isLoaded = loadedSlides[slide] || slide === fallbackImage;
 
-            return (
-              <div key={`${slide}-${index}`} className="relative h-full min-w-full overflow-hidden">
-                <img
-                  src={src}
-                  alt=""
-                  className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[2200ms] ease-out ${
-                    index === activeSlide ? "scale-100" : "scale-[1.045]"
-                  }`}
-                  onError={() => {
-                    setFailedSlides((current) => ({ ...current, [slide]: true }));
-                  }}
-                />
-                <div className="absolute inset-0 bg-black/10" />
-              </div>
-            );
-          })}
-        </div>
+          return (
+            <div
+              key={`${slide}-${index}`}
+              className={`absolute inset-0 overflow-hidden transition-opacity duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                index === activeSlide && isLoaded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <img
+                src={slide}
+                alt=""
+                className={`absolute inset-0 h-full w-full object-cover transition-transform duration-[2200ms] ease-out ${
+                  index === activeSlide ? "scale-100" : "scale-[1.035]"
+                }`}
+                onLoad={() => {
+                  setLoadedSlides((current) => ({ ...current, [slide]: true }));
+                }}
+                onError={() => {
+                  setFailedSlides((current) => ({ ...current, [slide]: true }));
+                }}
+              />
+              <div className="absolute inset-0 bg-black/10" />
+            </div>
+          );
+        })}
       </div>
 
       <div className={`absolute inset-0 ${overlayClassName}`} />
@@ -74,7 +100,7 @@ export function HeroSlideshow({
 
       <div className="pointer-events-none absolute inset-x-0 bottom-4 z-[1] flex justify-center px-4">
         <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/15 bg-black/20 px-3 py-2 backdrop-blur-md">
-          {effectiveSlides.map((_, index) => (
+          {resolvedSlides.map((_, index) => (
             <button
               key={index}
               type="button"

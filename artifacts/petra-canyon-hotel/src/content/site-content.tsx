@@ -16,10 +16,15 @@ import {
   Wifi,
 } from "lucide-react";
 
+import type { Language } from "@/lib/i18n";
+
 import hero1 from "@assets/generated_images/hotel_hero1.png";
 import roomImage from "@assets/generated_images/hotel_room.png";
 import restaurantImage from "@assets/generated_images/hotel_restaurant.png";
 import poolImage from "@assets/generated_images/hotel_pool.png";
+
+type LocalizedText = Record<Language, string>;
+type LocalizedList = Record<Language, string[]>;
 
 export const siteImages = {
   hero: hero1,
@@ -36,48 +41,450 @@ export const hotelLocationInfo = {
   areaLabel: "Wadi Musa, Petra, Jordan",
 };
 
-export const roomCatalog = [
+export type RoomKey =
+  | "standardDouble"
+  | "deluxeDouble"
+  | "deluxeTwin"
+  | "suite"
+  | "presidentialSuite"
+  | "superiorTriple"
+  | "standardSingle"
+  | "standardTwin";
+
+type RoomCatalogItem = {
+  key: RoomKey;
+  image: string;
+  size: string;
+  currentPrice: string;
+  originalPrice: string;
+  taxes: string;
+  name: LocalizedText;
+  occupancy: LocalizedText;
+  view: LocalizedText;
+  description: LocalizedText;
+  perks: LocalizedList;
+  mealPlan: LocalizedText;
+  payment: LocalizedText;
+  refundPolicy: LocalizedText;
+  availability?: Partial<LocalizedText>;
+};
+
+export const roomCatalog: RoomCatalogItem[] = [
   {
-    key: "standard",
+    key: "standardDouble",
     image: roomImage,
-    size: "36 sq m",
-    occupancy: "Sleeps 2",
-    view: "Standard city-facing stay",
-    description:
-      "Standard Double Room with a king bed, soundproofing, blackout curtains, minibar, rainfall shower, and smart in-room essentials.",
-    perks: ["1 king bed", "Rainfall shower", "Blackout curtains"],
+    size: "29 m²",
+    currentPrice: "JOD 60",
+    originalPrice: "",
+    taxes: "No extra bed",
+    name: {
+      en: "Standard Double Room",
+      ar: "غرفة مزدوجة قياسية",
+      fr: "Chambre Double Standard",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "King bed",
+      ar: "سرير مزدوج كبير",
+      fr: "Lit king size",
+    },
+    description: {
+      en: "A practical standard stay with king bed comfort, soundproofing, air conditioning, minibar, and a private bathroom.",
+      ar: "إقامة عملية ومريحة مع سرير مزدوج كبير وعزل للصوت وتكييف وميني بار وحمام خاص.",
+      fr: "Séjour standard confortable avec lit king size, insonorisation, climatisation, minibar et salle de bain privative.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "Free Wi-Fi", "Flat-screen TV", "Minibar", "Soundproofed room"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "واي فاي مجاني", "تلفزيون بشاشة مسطحة", "ميني بار", "عزل الصوت"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "Wi-Fi gratuit", "Télévision à écran plat", "Minibar", "Chambre insonorisée"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
   },
   {
-    key: "deluxe",
+    key: "deluxeDouble",
     image: hero1,
-    size: "36 sq m",
-    occupancy: "Sleeps 3",
-    view: "City view",
-    description:
-      "Deluxe Double Room with a king bed, smart TV, eco-friendly toiletries, free rollaway bed support, and more flexible floor space.",
-    perks: ["1 king bed", "Smart TV", "Free rollaway bed"],
+    size: "36 m²",
+    currentPrice: "JOD 65",
+    originalPrice: "",
+    taxes: "1 extra bed available for JOD 15",
+    name: {
+      en: "Deluxe Double Room",
+      ar: "غرفة مزدوجة فاخرة",
+      fr: "Chambre Double Deluxe",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "Mountain and city view",
+      ar: "منظر الجبل والمدينة",
+      fr: "Vue montagne et ville",
+    },
+    description: {
+      en: "An upgraded double room with more floor space, scenic views, king bed comfort, and polished in-room essentials.",
+      ar: "غرفة مزدوجة مطورة بمساحة أوسع وإطلالة جميلة وسرير مزدوج كبير وتجهيزات إقامة أفضل.",
+      fr: "Chambre double plus spacieuse avec belles vues, lit king size et équipements de séjour soignés.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "Mountain view", "City view", "Free Wi-Fi", "Minibar"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "منظر الجبل", "منظر المدينة", "واي فاي مجاني", "ميني بار"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "Vue montagne", "Vue ville", "Wi-Fi gratuit", "Minibar"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+    availability: {
+      en: "Only 1 left",
+      ar: "تبقى لدينا واحد",
+      fr: "Plus qu'une disponible",
+    },
   },
   {
-    key: "presidential",
+    key: "deluxeTwin",
+    image: hero1,
+    size: "36 m²",
+    currentPrice: "JOD 65",
+    originalPrice: "",
+    taxes: "1 extra bed available for JOD 15",
+    name: {
+      en: "Deluxe Twin Room",
+      ar: "غرفة توأم فاخرة",
+      fr: "Chambre Lits Jumeaux Deluxe",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "Mountain and city view",
+      ar: "منظر الجبل والمدينة",
+      fr: "Vue montagne et ville",
+    },
+    description: {
+      en: "A flexible twin setup with two single beds, a wider room plan, mountain and city outlooks, and all core comforts.",
+      ar: "غرفة مرنة بسريرين مفردين ومساحة أوسع مع إطلالات على الجبل والمدينة وجميع وسائل الراحة الأساسية.",
+      fr: "Configuration twin avec deux lits simples, espace généreux, vues sur la montagne et la ville, et tout le confort essentiel.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "2 single beds", "Free Wi-Fi", "Flat-screen TV", "Soundproofed room"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "سريران مفردان", "واي فاي مجاني", "تلفزيون بشاشة مسطحة", "عزل الصوت"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "2 lits simples", "Wi-Fi gratuit", "Télévision à écran plat", "Chambre insonorisée"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+  },
+  {
+    key: "suite",
     image: poolImage,
-    size: "60 sq m",
-    occupancy: "Sleeps 4",
-    view: "Suite with added privacy",
-    description:
-      "Presidential Suite with a king bed and sofa bed, kitchen, mini-fridge, rainfall shower, and a layout built for longer premium stays.",
-    perks: ["Kitchen", "Mini-fridge", "Sofa bed"],
+    size: "63 m²",
+    currentPrice: "JOD 105",
+    originalPrice: "",
+    taxes: "1 extra bed available for JOD 15",
+    name: {
+      en: "Suite",
+      ar: "السويت",
+      fr: "Suite",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "Mountain and city view",
+      ar: "منظر الجبل والمدينة",
+      fr: "Vue montagne et ville",
+    },
+    description: {
+      en: "A roomy suite with a separate living area, king bedroom, sofa bed, and more privacy for longer premium stays.",
+      ar: "جناح واسع مع غرفة معيشة منفصلة وغرفة نوم بسرير كبير وسرير أريكة وخصوصية أكبر للإقامات الأطول.",
+      fr: "Suite spacieuse avec salon séparé, chambre king size, canapé-lit et davantage d'intimité pour les séjours premium.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "Separate living room", "King bed", "Sofa bed", "Free Wi-Fi"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "غرفة معيشة منفصلة", "سرير مزدوج كبير", "سرير أريكة", "واي فاي مجاني"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "Salon séparé", "Lit king size", "Canapé-lit", "Wi-Fi gratuit"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+    availability: {
+      en: "Only 3 left",
+      ar: "تبقى لدينا 3",
+      fr: "Plus que 3 disponibles",
+    },
   },
   {
-    key: "triple",
-    image: roomImage,
-    size: "39 sq m",
-    occupancy: "Sleeps 3",
-    view: "Triple room setup",
-    description:
-      "Superior Triple Room with three large single beds, premium bedding, soundproofing, blackout curtains, and practical comfort for groups.",
-    perks: ["3 large single beds", "Premium bedding", "Soundproofed room"],
+    key: "presidentialSuite",
+    image: poolImage,
+    size: "68 m²",
+    currentPrice: "JOD 150",
+    originalPrice: "",
+    taxes: "1 extra bed available for JOD 15",
+    name: {
+      en: "Presidential Suite",
+      ar: "الجناح الرئاسي",
+      fr: "Suite Présidentielle",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "Private suite with premium layout",
+      ar: "جناح خاص بمخطط فاخر",
+      fr: "Suite privée haut de gamme",
+    },
+    description: {
+      en: "The hotel's most premium suite with a large king bedroom, living area, sofa bed, private kitchen, and expanded comfort.",
+      ar: "أفخم جناح في الفندق مع غرفة نوم كبيرة بسرير مزدوج كبير ومنطقة معيشة وسرير أريكة ومطبخ خاص وراحة أعلى.",
+      fr: "La suite la plus haut de gamme de l'hôtel avec grande chambre king size, salon, canapé-lit, cuisine privée et confort supérieur.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "Private kitchen", "Private suite", "Sofa bed", "Free Wi-Fi"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "مطبخ خاص", "جناح خاص", "سرير أريكة", "واي فاي مجاني"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "Cuisine privée", "Suite privée", "Canapé-lit", "Wi-Fi gratuit"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+    availability: {
+      en: "Only 2 left",
+      ar: "تبقى لدينا اثنان",
+      fr: "Plus que 2 disponibles",
+    },
   },
-] as const;
+  {
+    key: "superiorTriple",
+    image: roomImage,
+    size: "39 m²",
+    currentPrice: "JOD 85",
+    originalPrice: "",
+    taxes: "Extra bed available for JOD 15",
+    name: {
+      en: "Triple Room",
+      ar: "غرفة الثلاثية السوبيريور",
+      fr: "Chambre Triple Supérieure",
+    },
+    occupancy: {
+      en: "Sleeps 3",
+      ar: "تتسع لثلاثة ضيوف",
+      fr: "Pour 3 personnes",
+    },
+    view: {
+      en: "Mountain and city view",
+      ar: "منظر الجبل والمدينة",
+      fr: "Vue montagne et ville",
+    },
+    description: {
+      en: "A practical triple room with three single beds, more floor space, and a layout that works well for small groups.",
+      ar: "غرفة ثلاثية عملية مع ثلاثة أسرّة مفردة ومساحة أكبر ومخطط مناسب للمجموعات الصغيرة.",
+      fr: "Chambre triple pratique avec trois lits simples, plus d'espace au sol et une configuration idéale pour les petits groupes.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "3 single beds", "Free Wi-Fi", "Flat-screen TV", "Soundproofed room"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "3 أسرّة مفردة", "واي فاي مجاني", "تلفزيون بشاشة مسطحة", "عزل الصوت"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "3 lits simples", "Wi-Fi gratuit", "Télévision à écran plat", "Chambre insonorisée"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+  },
+  {
+    key: "standardSingle",
+    image: roomImage,
+    size: "22 m²",
+    currentPrice: "JOD 50",
+    originalPrice: "",
+    taxes: "Single occupancy only",
+    name: {
+      en: "Standard Single Room",
+      ar: "غرفة فردية قياسية",
+      fr: "Chambre Simple Standard",
+    },
+    occupancy: {
+      en: "Sleeps 1",
+      ar: "تتسع لشخص واحد",
+      fr: "Pour 1 personne",
+    },
+    view: {
+      en: "Mountain and city view",
+      ar: "منظر الجبل والمدينة",
+      fr: "Vue montagne et ville",
+    },
+    description: {
+      en: "A compact private stay for solo travelers with a single bed, minibar, city and mountain outlooks, and all essentials.",
+      ar: "إقامة خاصة للمسافر الفردي مع سرير مفرد وميني بار وإطلالات على الجبل والمدينة وكل الاحتياجات الأساسية.",
+      fr: "Séjour privé compact pour voyageur seul avec lit simple, minibar, vues sur la montagne et la ville, et équipements essentiels.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "1 single bed", "Free Wi-Fi", "Flat-screen TV", "Minibar"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "سرير مفرد", "واي فاي مجاني", "تلفزيون بشاشة مسطحة", "ميني بار"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "Lit simple", "Wi-Fi gratuit", "Télévision à écran plat", "Minibar"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+  },
+  {
+    key: "standardTwin",
+    image: roomImage,
+    size: "29 m²",
+    currentPrice: "JOD 60",
+    originalPrice: "",
+    taxes: "No extra bed",
+    name: {
+      en: "Standard Twin Room",
+      ar: "غرفة توأم قياسية",
+      fr: "Chambre Lits Jumeaux Standard",
+    },
+    occupancy: {
+      en: "Sleeps 2",
+      ar: "تتسع لشخصين",
+      fr: "Pour 2 personnes",
+    },
+    view: {
+      en: "Twin-bed city-facing stay",
+      ar: "إقامة بسريرين مفردين",
+      fr: "Séjour twin orienté ville",
+    },
+    description: {
+      en: "A standard twin setup with two single beds, soundproofing, air conditioning, minibar, and a private bathroom.",
+      ar: "غرفة قياسية بسريرين مفردين مع عزل للصوت وتكييف وميني بار وحمام خاص.",
+      fr: "Chambre twin standard avec deux lits simples, insonorisation, climatisation, minibar et salle de bain privative.",
+    },
+    perks: {
+      en: ["Breakfast included", "Partially refundable", "2 single beds", "Free Wi-Fi", "Flat-screen TV", "Minibar"],
+      ar: ["إفطار رائع مشمول", "قابل للاسترداد جزئياً", "سريران مفردان", "واي فاي مجاني", "تلفزيون بشاشة مسطحة", "ميني بار"],
+      fr: ["Petit-déjeuner inclus", "Partiellement remboursable", "2 lits simples", "Wi-Fi gratuit", "Télévision à écran plat", "Minibar"],
+    },
+    mealPlan: {
+      en: "Breakfast included",
+      ar: "إفطار رائع مشمول",
+      fr: "Petit-déjeuner inclus",
+    },
+    payment: {
+      en: "Online payment available",
+      ar: "الدفع عبر الإنترنت",
+      fr: "Paiement en ligne disponible",
+    },
+    refundPolicy: {
+      en: "Partially refundable",
+      ar: "قابل للاسترداد جزئياً",
+      fr: "Partiellement remboursable",
+    },
+  },
+];
+
+export function getLocalizedRoom(room: RoomCatalogItem, language: Language) {
+  return {
+    ...room,
+    name: room.name[language],
+    occupancy: room.occupancy[language],
+    view: room.view[language],
+    description: room.description[language],
+    perks: room.perks[language],
+    mealPlan: room.mealPlan[language],
+    payment: room.payment[language],
+    refundPolicy: room.refundPolicy[language],
+    availability: room.availability?.[language] ?? "",
+  };
+}
 
 export const amenityHighlights: Array<{
   key: string;
@@ -100,8 +507,8 @@ export const amenityHighlights: Array<{
   {
     key: "restaurant",
     icon: Utensils,
-    headline: "Amneh restaurant",
-    description: "On-site dining with buffet breakfast and a menu spanning Jordanian, American, Chinese, and French dishes.",
+    headline: "Breakfast and restaurant service",
+    description: "Breakfast is available and the hotel restaurant covers Jordanian and international dining throughout the stay.",
   },
   {
     key: "bar",
@@ -119,43 +526,43 @@ export const amenityHighlights: Array<{
     key: "parking",
     icon: Car,
     headline: "Free private parking",
-    description: "Straightforward guest parking close to the hotel for drivers arriving in Petra by car.",
+    description: "Private parking is available on site, with accessible parking options and straightforward arrival for drivers.",
   },
   {
     key: "frontDesk",
     icon: Bell,
     headline: "24-hour front desk",
-    description: "Round-the-clock reception with concierge help, luggage support, and late-arrival assistance.",
+    description: "Round-the-clock reception with concierge help, early invoicing, luggage storage, and express check-in support.",
   },
   {
     key: "roomService",
     icon: Coffee,
-    headline: "Room service",
-    description: "Room service and in-room breakfast options for quieter stays and slower mornings.",
+    headline: "Room service and in-room coffee",
+    description: "Room service, tea and coffee makers in all rooms, and daily convenience support for quieter stays.",
   },
   {
     key: "shuttle",
     icon: Plane,
-    headline: "Airport transfer support",
+    headline: "Airport shuttle support",
     description: "Airport transfers and local transport coordination to simplify arrival and departure planning.",
   },
   {
     key: "meeting",
     icon: Users,
-    headline: "Meeting facilities",
-    description: "Conference and meeting spaces for small events, planning sessions, and hosted business needs.",
+    headline: "Guest and service facilities",
+    description: "Laundry, housekeeping, family support, and shared guest services that make longer stays easier.",
   },
   {
     key: "tour",
     icon: MapPin,
-    headline: "Tour desk services",
-    description: "Tour and ticket assistance for Petra visits, local routes, and nearby highlights around Wadi Musa.",
+    headline: "Tour and local assistance",
+    description: "Tour desk support and practical location guidance for Petra visits, routes, and nearby highlights.",
   },
   {
     key: "exchange",
     icon: Sparkles,
-    headline: "Guest convenience services",
-    description: "Currency exchange, dry cleaning, housekeeping, and practical support services throughout the stay.",
+    headline: "Non-smoking and comfort essentials",
+    description: "Non-smoking rooms, allergy-friendly options, air conditioning, and practical comfort features across the property.",
   },
 ] as const;
 
