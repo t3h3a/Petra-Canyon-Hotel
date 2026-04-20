@@ -13,7 +13,7 @@ import slide3 from "../../../../img/صور رأيسية/صورة3.jpeg";
 import slide4 from "../../../../img/صور رأيسية/صورة4.jpeg";
 import slide5 from "../../../../img/صور رأيسية/صورة5.jpeg";
 
-const LOGO_SRC = "/petra-canyon-logo.png?v=3";
+const LOGO_SRC = `${import.meta.env.BASE_URL}petra-canyon-logo.png?v=3`;
 const HOME_HERO_SLIDES = [slide1, slide2, slide3, slide4, slide5];
 
 export default function Home() {

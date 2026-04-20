@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
-const LOGO_SRC = "/petra-canyon-logo.png?v=3";
+const LOGO_SRC = `${import.meta.env.BASE_URL}petra-canyon-logo.png?v=3`;
 const ARABIC_LABEL = "\u0639\u0631\u0628\u064A";
 
 export function Navbar() {
