@@ -6,61 +6,51 @@ export function Rooms() {
   const { t } = useLanguage();
 
   const rooms = [
-    {
-      key: "standard",
-      img: room1,
-    },
-    {
-      key: "deluxe",
-      img: room1,
-    },
-    {
-      key: "presidential",
-      img: room1,
-    },
-    {
-      key: "triple",
-      img: room1,
-    }
+    { key: "standard", img: room1 },
+    { key: "deluxe", img: room1 },
+    { key: "presidential", img: room1 },
+    { key: "triple", img: room1 },
   ] as const;
 
   return (
-    <section className="py-24 bg-background" id="rooms">
+    <section className="bg-background py-16 sm:py-20 lg:py-24" id="rooms">
       <div className="container mx-auto px-4 md:px-6">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-12 text-center sm:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-4">{t.rooms.title}</h2>
-          <div className="w-24 h-1 bg-primary mx-auto"></div>
+          <h2 className="mb-4 text-3xl font-serif text-foreground md:text-5xl">{t.rooms.title}</h2>
+          <div className="mx-auto h-1 w-24 bg-primary" />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8 xl:gap-10">
           {rooms.map((room, index) => (
-            <motion.div 
+            <motion.div
               key={room.key}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group cursor-pointer"
+              className="group flex h-full cursor-pointer flex-col"
             >
-              <div className="relative h-64 md:h-80 overflow-hidden rounded-t-lg">
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors z-10" />
-                <img 
-                  src={room.img} 
+              <div className="relative h-56 overflow-hidden rounded-t-lg sm:h-64 md:h-72 lg:h-80">
+                <div className="absolute inset-0 z-10 bg-black/20 transition-colors group-hover:bg-black/10" />
+                <img
+                  src={room.img}
                   alt={t.rooms[room.key].name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
-              <div className="bg-card border border-card-border border-t-0 rounded-b-lg p-6 md:p-8 shadow-sm group-hover:shadow-md transition-shadow">
-                <h3 className="text-2xl font-serif text-foreground mb-3">{t.rooms[room.key].name}</h3>
-                <p className="text-muted-foreground mb-6 line-clamp-2">{t.rooms[room.key].desc}</p>
-                <span className="text-primary font-medium tracking-wide uppercase text-sm group-hover:underline underline-offset-4">
-                  {t.rooms.book} →
+              <div className="flex flex-1 flex-col rounded-b-lg border border-card-border border-t-0 bg-card p-5 shadow-sm transition-shadow group-hover:shadow-md md:p-6 lg:p-8">
+                <h3 className="mb-3 text-xl font-serif text-foreground sm:text-2xl">{t.rooms[room.key].name}</h3>
+                <p className="mb-6 line-clamp-3 text-sm leading-6 text-muted-foreground sm:text-base">
+                  {t.rooms[room.key].desc}
+                </p>
+                <span className="mt-auto text-sm font-medium uppercase tracking-wide text-primary underline-offset-4 group-hover:underline">
+                  {t.rooms.book}
                 </span>
               </div>
             </motion.div>

@@ -1,11 +1,17 @@
 import { useLanguage } from "@/components/LanguageProvider";
-import { Link } from "wouter";
-import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
+const LOGO_SRC = "/petra-canyon-logo.png?v=3";
+const ARABIC_LABEL = "\u0639\u0631\u0628\u064A";
+
 export function Navbar() {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t, dir } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -13,109 +19,197 @@ export function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navLinks = [
-    { name: t.nav.home, href: "#home" },
-    { name: t.nav.rooms, href: "#rooms" },
-    { name: t.nav.amenities, href: "#amenities" },
-    { name: t.nav.restaurant, href: "#restaurant" },
-    { name: t.nav.location, href: "#location" },
+    { name: t.nav.home, href: "/" },
+    { name: t.nav.rooms, href: "/rooms" },
+    { name: t.nav.amenities, href: "/amenities" },
+    { name: t.nav.restaurant, href: "/restaurant" },
+    { name: t.nav.location, href: "/location" },
   ];
-
-  const scrollTo = (id: string) => {
-    const el = document.querySelector(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-    setIsMobileMenuOpen(false);
-  };
+  const accountHref = isAuthenticated ? "/account" : "/login";
+  const accountLabel = isAuthenticated ? "Account" : "Login";
 
   return (
-    <nav 
+    <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"
+        isScrolled
+          ? "bg-background/95 py-3 shadow-sm backdrop-blur-md"
+          : "bg-[linear-gradient(180deg,rgba(8,8,8,0.44),rgba(8,8,8,0.14),transparent)] py-4 sm:py-5"
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <span className={`font-serif text-2xl tracking-wider font-semibold ${isScrolled ? "text-primary" : "text-white"}`}>
-              PETRA CANYON
-            </span>
-          </div>
+        <div className="relative flex items-center justify-between">
+          <div className={`hidden w-full items-center justify-between gap-8 lg:flex ${dir === "rtl" ? "flex-row-reverse" : ""}`}>
+            <Link
+              href="/"
+              className={`shrink-0 text-sm font-semibold uppercase tracking-[0.42em] transition-colors ${
+                isScrolled ? "text-primary" : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
+              }`}
+            >
+              Petra Canyon
+            </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <button 
-                key={link.name}
-                onClick={() => scrollTo(link.href)}
+            <div className={`flex min-w-0 flex-1 items-center gap-8 ${dir === "rtl" ? "justify-start" : "justify-end"}`}>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
                 className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
-                  isScrolled ? "text-foreground" : "text-white/90"
+                  location === link.href
+                    ? "text-primary"
+                    : isScrolled
+                      ? "text-foreground"
+                      : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
                 }`}
               >
                 {link.name}
-              </button>
-            ))}
-            
-            <div className="flex items-center gap-2 ml-4 border-l border-border/30 pl-6">
-              <button 
-                onClick={() => setLanguage('en')}
-                className={`text-sm font-semibold ${language === 'en' ? 'text-primary' : isScrolled ? 'text-foreground' : 'text-white/80'}`}
+                </Link>
+              ))}
+
+              <Link
+                href={accountHref}
+                className={`text-sm font-medium tracking-wide transition-colors hover:text-primary ${
+                  location === accountHref
+                    ? "text-primary"
+                    : isScrolled
+                      ? "text-foreground"
+                      : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
+                }`}
               >
-                EN
-              </button>
-              <span className={isScrolled ? 'text-border' : 'text-white/30'}>|</span>
-              <button 
-                onClick={() => setLanguage('ar')}
-                className={`text-sm font-semibold ${language === 'ar' ? 'text-primary' : isScrolled ? 'text-foreground' : 'text-white/80'}`}
-              >
-                عربي
-              </button>
-              <span className={isScrolled ? 'text-border' : 'text-white/30'}>|</span>
-              <button 
-                onClick={() => setLanguage('fr')}
-                className={`text-sm font-semibold ${language === 'fr' ? 'text-primary' : isScrolled ? 'text-foreground' : 'text-white/80'}`}
-              >
-                FR
-              </button>
+                {accountLabel}
+              </Link>
+
+              <div className={`flex items-center gap-2 ${dir === "rtl" ? "mr-4 border-r border-border/30 pr-6" : "ml-4 border-l border-border/30 pl-6"}`}>
+                <button
+                  onClick={() => setLanguage("en")}
+                  className={`text-sm font-semibold ${
+                    language === "en"
+                      ? "text-primary"
+                      : isScrolled
+                        ? "text-foreground"
+                        : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
+                  }`}
+                >
+                  EN
+                </button>
+                <span className={isScrolled ? "text-border" : "text-white/30"}>|</span>
+                <button
+                  onClick={() => setLanguage("ar")}
+                  className={`text-sm font-semibold ${
+                    language === "ar"
+                      ? "text-primary"
+                      : isScrolled
+                        ? "text-foreground"
+                        : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
+                  }`}
+                >
+                  {ARABIC_LABEL}
+                </button>
+                <span className={isScrolled ? "text-border" : "text-white/30"}>|</span>
+                <button
+                  onClick={() => setLanguage("fr")}
+                  className={`text-sm font-semibold ${
+                    language === "fr"
+                      ? "text-primary"
+                      : isScrolled
+                        ? "text-foreground"
+                        : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
+                  }`}
+                >
+                  FR
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Mobile Toggle */}
-          <button 
-            className="lg:hidden p-2"
+          <div className="pointer-events-none absolute left-1/2 flex min-w-0 -translate-x-1/2 items-center lg:hidden">
+            <Link
+              href="/"
+              className={`pointer-events-auto flex min-w-0 items-center gap-1.5 rounded-full border px-3 py-2 shadow-[0_14px_32px_rgba(0,0,0,0.18)] transition-all ${
+                isScrolled
+                  ? "border-border/60 bg-background/90 backdrop-blur-md"
+                  : "border-white/15 bg-black/28 backdrop-blur-xl"
+              }`}
+            >
+              <span
+                className={`w-[5.2rem] text-center text-[11px] font-semibold tracking-[0.28em] sm:text-sm ${
+                  isScrolled ? "text-foreground" : "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]"
+                }`}
+              >
+                PETRA
+              </span>
+              <img
+                src={LOGO_SRC}
+                alt="Petra Canyon logo"
+                className={`h-10 w-14 shrink-0 object-contain transition-all ${
+                  isScrolled ? "opacity-100 drop-shadow-[0_8px_18px_rgba(0,0,0,0.18)]" : "opacity-100 drop-shadow-[0_10px_18px_rgba(0,0,0,0.45)]"
+                }`}
+              />
+              <span
+                className={`w-[5.2rem] text-center text-[11px] font-semibold tracking-[0.28em] sm:text-sm ${
+                  isScrolled ? "text-foreground" : "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]"
+                }`}
+              >
+                CANYON
+              </span>
+            </Link>
+          </div>
+
+          <button
+            className={`relative z-10 ml-auto rounded-full border p-2.5 transition-all lg:hidden ${
+              isScrolled
+                ? "border-border/60 bg-background/90 text-foreground shadow-sm"
+                : "border-white/15 bg-black/28 text-white shadow-[0_14px_32px_rgba(0,0,0,0.18)] backdrop-blur-xl"
+            }`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             {isMobileMenuOpen ? (
-              <X className={isScrolled ? "text-foreground" : "text-white"} />
+              <X className="h-5 w-5" />
             ) : (
-              <Menu className={isScrolled ? "text-foreground" : "text-white"} />
+              <Menu className="h-5 w-5" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 right-0 bg-background border-t border-border shadow-lg py-4 px-4 flex flex-col gap-4">
-          {navLinks.map((link) => (
-            <button 
-              key={link.name}
-              onClick={() => scrollTo(link.href)}
-              className="text-left py-2 text-foreground font-medium border-b border-border/50"
+        <div className="absolute left-4 right-4 top-full rounded-2xl border border-border bg-background/95 px-4 py-4 shadow-xl backdrop-blur-md lg:hidden">
+          <div className="flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="rounded-lg px-3 py-3 text-left font-medium text-foreground transition-colors hover:bg-secondary/40"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Link
+              href={accountHref}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="rounded-lg px-3 py-3 text-left font-medium text-foreground transition-colors hover:bg-secondary/40"
             >
-              {link.name}
-            </button>
-          ))}
-          
-          <div className="flex gap-4 pt-2">
-            <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')}>EN</Button>
-            <Button variant={language === 'ar' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('ar')}>عربي</Button>
-            <Button variant={language === 'fr' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('fr')}>FR</Button>
+              {accountLabel}
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-border/60 pt-4">
+            <Button className="min-w-[4.5rem] flex-1" variant={language === "en" ? "default" : "outline"} size="sm" onClick={() => setLanguage("en")}>
+              EN
+            </Button>
+            <Button className="min-w-[4.5rem] flex-1" variant={language === "ar" ? "default" : "outline"} size="sm" onClick={() => setLanguage("ar")}>
+              {ARABIC_LABEL}
+            </Button>
+            <Button className="min-w-[4.5rem] flex-1" variant={language === "fr" ? "default" : "outline"} size="sm" onClick={() => setLanguage("fr")}>
+              FR
+            </Button>
           </div>
         </div>
       )}

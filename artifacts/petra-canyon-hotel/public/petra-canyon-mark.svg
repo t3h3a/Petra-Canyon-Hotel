@@ -1,0 +1,10 @@
+<svg width="260" height="150" viewBox="0 0 260 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="131" cy="96" rx="72" ry="12" stroke="white" stroke-opacity="0.72" stroke-width="2.5" fill="none"/>
+  <path d="M91 108C92 95 94 71 96 52C98 40 106 32 117 32H145C156 32 164 40 166 52C168 71 170 95 171 108" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M102 80V57L114 47V80" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M160 80V57L148 47V80" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M122 80V48C122 41.3726 127.373 36 134 36C140.627 36 146 41.3726 146 48V80" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M122 108V82H145V108" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M88 108H174" stroke="white" stroke-width="5" stroke-linecap="round"/>
+  <text x="131" y="106" text-anchor="middle" fill="white" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-weight="700">كانيون</text>
+</svg>

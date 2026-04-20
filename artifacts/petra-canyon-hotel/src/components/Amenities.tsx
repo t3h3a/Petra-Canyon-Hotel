@@ -25,20 +25,20 @@ export function Amenities() {
   ] as const;
 
   return (
-    <section className="py-24 bg-secondary/30" id="amenities">
+    <section className="bg-secondary/30 py-16 sm:py-20 lg:py-24" id="amenities">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="mb-12 text-center sm:mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-serif text-foreground mb-4">{t.amenities.title}</h2>
-          <div className="w-24 h-1 bg-primary mx-auto"></div>
+          <h2 className="mb-4 text-3xl font-serif text-foreground md:text-5xl">{t.amenities.title}</h2>
+          <div className="mx-auto h-1 w-24 bg-primary"></div>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:gap-8">
           {amenities.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -48,9 +48,9 @@ export function Amenities() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="flex flex-col items-center text-center p-6 bg-card rounded-lg border border-card-border shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
+                className="flex min-h-[9.5rem] flex-col items-center rounded-lg border border-card-border bg-card p-5 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-md sm:p-6"
               >
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h4 className="text-sm md:text-base font-medium text-foreground">

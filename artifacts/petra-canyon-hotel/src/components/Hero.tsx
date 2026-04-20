@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import useEmblaCarousel from 'embla-carousel-react';
-import { motion, AnimatePresence } from "framer-motion";
+import useEmblaCarousel from "embla-carousel-react";
+import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { BookingWidget } from "./BookingWidget";
@@ -38,60 +38,61 @@ export function Hero() {
   }, [emblaApi]);
 
   return (
-    <section className="relative h-[100dvh] w-full bg-neutral-900 overflow-hidden" id="home">
-      <div className="absolute inset-0 w-full h-full" ref={emblaRef}>
+    <section className="relative min-h-[100svh] w-full overflow-hidden bg-neutral-900" id="home">
+      <div className="absolute inset-0 h-full w-full" ref={emblaRef}>
         <div className="flex h-full w-full touch-pan-y">
           {images.map((src, index) => (
-            <div className="relative flex-[0_0_100%] h-full w-full min-w-0" key={index}>
+            <div className="relative h-full w-full min-w-0 flex-[0_0_100%]" key={index}>
               <img
                 src={src}
                 alt={`Petra Canyon Hotel View ${index + 1}`}
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className="absolute inset-0 h-full w-full object-cover object-center"
               />
-              <div className="absolute inset-0 bg-black/40" />
+              <div className="absolute inset-0 bg-black/45" />
             </div>
           ))}
         </div>
       </div>
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+      <div className="relative z-20 container mx-auto flex min-h-[100svh] flex-col px-4 pb-5 pt-24 sm:px-6 sm:pb-6 sm:pt-28 md:pt-32 lg:justify-between lg:pb-8 lg:pt-36">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-center"
+          className="mx-auto mt-16 w-full max-w-5xl text-center text-white sm:mt-24 lg:mt-28"
         >
-          <div className="flex justify-center gap-1 mb-6">
+          <div className="mb-4 flex justify-center gap-1 sm:mb-6">
             {[1, 2, 3, 4].map((star) => (
-              <Star key={star} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+              <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
             ))}
           </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif tracking-tight mb-4 text-shadow-lg">
+          <h1 className="text-4xl font-serif tracking-tight text-shadow-lg sm:text-5xl md:text-6xl lg:text-8xl">
             Petra Canyon
           </h1>
-          <p className="text-xl md:text-2xl font-light tracking-wide opacity-90 mb-12">
+          <p className="mx-auto mt-4 max-w-2xl text-base font-light leading-relaxed tracking-wide opacity-90 sm:mt-5 sm:text-lg md:text-xl lg:text-2xl">
             {t.hero.tagline}
           </p>
         </motion.div>
-      </div>
 
-      {/* Dots */}
-      <div className="absolute bottom-40 left-0 right-0 flex justify-center gap-3 z-10">
-        {images.map((_, idx) => (
-          <button
-            key={idx}
-            className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all duration-300",
-              idx === selectedIndex ? "bg-white w-8" : "bg-white/50 hover:bg-white/80"
-            )}
-            onClick={() => emblaApi?.scrollTo(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
+        <div className="mt-auto flex flex-col gap-4 sm:gap-5 lg:gap-6">
+          <div className="flex justify-center gap-3">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                className={cn(
+                  "h-2.5 w-2.5 rounded-full transition-all duration-300",
+                  idx === selectedIndex ? "w-8 bg-white" : "bg-white/50 hover:bg-white/80"
+                )}
+                onClick={() => emblaApi?.scrollTo(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
 
-      <div className="absolute bottom-8 left-4 right-4 z-20">
-        <BookingWidget />
+          <div className="mx-auto w-full max-w-6xl">
+            <BookingWidget />
+          </div>
+        </div>
       </div>
     </section>
   );

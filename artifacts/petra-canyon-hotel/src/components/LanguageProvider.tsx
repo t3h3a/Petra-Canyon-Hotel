@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Language, translations } from '../lib/i18n';
+import { Language, translations, TranslationDictionary } from '../lib/i18n';
 
 type LanguageContextType = {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: typeof translations.en;
+  t: TranslationDictionary;
   dir: 'ltr' | 'rtl';
 };
 
@@ -22,7 +22,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     <LanguageContext.Provider value={{
       language,
       setLanguage,
-      t: translations[language],
+      t: translations[language] as TranslationDictionary,
       dir: language === 'ar' ? 'rtl' : 'ltr'
     }}>
       {children}
