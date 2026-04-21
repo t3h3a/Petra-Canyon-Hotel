@@ -46,6 +46,9 @@ jobs:
       - name: Prepare SPA fallback
         run: cp artifacts/petra-canyon-hotel/dist/public/index.html artifacts/petra-canyon-hotel/dist/public/404.html
 
+      - name: Disable Jekyll processing
+        run: touch artifacts/petra-canyon-hotel/dist/public/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
