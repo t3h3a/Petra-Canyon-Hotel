@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "pnpm --filter @workspace/petra-canyon-hotel run dev",
+    "dev:hotel": "pnpm --filter @workspace/petra-canyon-hotel run dev",
+    "build:hotel": "pnpm --filter @workspace/petra-canyon-hotel run build",
+    "serve:hotel": "pnpm --filter @workspace/petra-canyon-hotel run serve",
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
