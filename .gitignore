@@ -53,3 +53,4 @@ Thumbs.db
 *.log
 backend/.env
 frontend/
+.deploy-gh-pages/

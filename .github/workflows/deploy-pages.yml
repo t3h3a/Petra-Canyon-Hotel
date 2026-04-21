@@ -40,7 +40,7 @@ jobs:
       - name: Build website for GitHub Pages
         env:
           PORT: 4173
-          BASE_PATH: /petracan/
+          BASE_PATH: /Petra-Canyon-Hotel/
         run: pnpm --filter @workspace/petra-canyon-hotel run build
 
       - name: Prepare SPA fallback
