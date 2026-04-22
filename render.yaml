@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: petra-canyon-hotel-api
+    runtime: python
+    plan: starter
+    region: oregon
+    autoDeployTrigger: commit
+    buildCommand: pip install -r python_hotel_system/requirements.txt
+    startCommand: python python_hotel_system/serve.py
+    healthCheckPath: /api/health
+    disk:
+      name: hotel-data
+      mountPath: /opt/render/project/src/python_hotel_system/instance
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_ORIGINS
+        value: https://t3h3a.github.io
+      - key: SESSION_COOKIE_SAMESITE
+        value: None
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL
+        value: sqlite:////opt/render/project/src/python_hotel_system/instance/hotel.db
+      - key: SECRET_KEY
+        sync: false
+      - key: MAIL_SERVER
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USE_TLS
+        sync: false
+      - key: MAIL_USE_SSL
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
+      - key: HOTEL_EMAIL
+        sync: false
+      - key: ADMIN_EMAILS
+        value: petracaniohotel@gmail.com
+      - key: ADMIN_BOOTSTRAP_EMAIL
+        value: petracaniohotel@gmail.com
+      - key: ADMIN_BOOTSTRAP_PASSWORD_HASH
+        sync: false
+      - key: ADMIN_BOOTSTRAP_FULL_NAME
+        value: Petra Canyon Admin
+      - key: ADMIN_BOOTSTRAP_PHONE
+        value: +962790000001
+      - key: ADMIN_BOOTSTRAP_COUNTRY
+        value: Jordan

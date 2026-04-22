@@ -58,3 +58,38 @@ FRONTEND_ORIGINS=https://t3h3a.github.io
 SESSION_COOKIE_SAMESITE=None
 SESSION_COOKIE_SECURE=True
 ```
+
+## Official Deployment
+
+Use this production setup:
+
+- Frontend: GitHub Pages
+- Backend: Render web service
+
+This repo now includes [render.yaml](./render.yaml) for the backend service.
+
+To finish the live deployment:
+
+1. Push the repo to GitHub.
+2. In Render, create a new Blueprint from this repository.
+3. Let Render create the `petra-canyon-hotel-api` web service.
+4. Fill these required Render environment variables:
+   - `SECRET_KEY`
+   - `MAIL_SERVER`
+   - `MAIL_PORT`
+   - `MAIL_USE_TLS`
+   - `MAIL_USE_SSL`
+   - `MAIL_USERNAME`
+   - `MAIL_PASSWORD`
+   - `MAIL_DEFAULT_SENDER`
+   - `HOTEL_EMAIL`
+   - `ADMIN_BOOTSTRAP_PASSWORD_HASH`
+5. Keep GitHub Pages enabled for this repo.
+
+The frontend production build already falls back to:
+
+```text
+https://petra-canyon-hotel-api.onrender.com
+```
+
+So once the Render backend is created with that exact service name, the live site can talk to it without changing frontend code again.
