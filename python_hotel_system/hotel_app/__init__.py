@@ -1,6 +1,6 @@
 ﻿from __future__ import annotations
 
-from flask import Flask, current_app
+from flask import Flask, current_app, jsonify, redirect, request, url_for
 from flask_cors import CORS
 from sqlalchemy import inspect, text
 
@@ -20,6 +20,12 @@ def create_app(config_object: type[Config] = Config) -> Flask:
     csrf.init_app(app)
     login_manager.login_view = "main.login"
     login_manager.login_message_category = "warning"
+
+    @login_manager.unauthorized_handler
+    def unauthorized():
+        if request.path.startswith("/api/"):
+            return jsonify({"ok": False, "message": "Authentication is required."}), 401
+        return redirect(url_for("main.login", next=request.url))
 
     if app.config.get("FRONTEND_ORIGINS"):
         CORS(
