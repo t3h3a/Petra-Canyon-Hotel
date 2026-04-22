@@ -30,16 +30,28 @@ type ApiEnvelope = {
 
 const configuredApiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "");
 const productionFallbackApiUrl = "https://petra-canyon-hotel-api.onrender.com";
+const productionBuildMarker = "2026-04-22-gh-pages-auth-fix";
 const browserHostname = typeof window !== "undefined" ? window.location.hostname : "";
 const isLocalBrowser = import.meta.env.DEV || ["localhost", "127.0.0.1"].includes(browserHostname);
+const isGitHubPages = browserHostname.endsWith(".github.io");
 const isLocalApiUrl = (value?: string) => Boolean(value && /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/i.test(value));
 
 export const API_BASE_URL =
-  configuredApiBaseUrl && (!isLocalApiUrl(configuredApiBaseUrl) || isLocalBrowser)
-    ? configuredApiBaseUrl
-    : isLocalBrowser
-      ? ""
-      : productionFallbackApiUrl;
+  import.meta.env.DEV
+    ? ""
+    : isGitHubPages
+      ? productionFallbackApiUrl
+    : configuredApiBaseUrl && !isLocalApiUrl(configuredApiBaseUrl)
+      ? configuredApiBaseUrl
+      : isLocalBrowser
+        ? ""
+        : productionFallbackApiUrl;
+
+void productionBuildMarker;
+
+void productionBuildMarker;
+
+void productionBuildMarker;
 
 export const apiRoomTypeToKey: Record<string, RoomKey> = {
   "Standard Single Room": "standardSingle",
