@@ -6,7 +6,7 @@ services:
     region: oregon
     autoDeployTrigger: commit
     buildCommand: pip install -r python_hotel_system/requirements.txt
-    startCommand: gunicorn --chdir python_hotel_system app:app
+    startCommand: gunicorn --chdir python_hotel_system --bind 0.0.0.0:$PORT app:app
     healthCheckPath: /api/health
     disk:
       name: hotel-data
