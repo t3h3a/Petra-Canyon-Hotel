@@ -30,7 +30,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  login: (identifier: string, password: string) => Promise<AuthResult>;
+  login: (emailOrPhone: string, password: string) => Promise<AuthResult>;
   register: (input: AuthProfileInput & { email: string; password: string }) => Promise<AuthResult>;
   logout: () => Promise<void>;
   updateProfile: (input: Omit<AuthProfileInput, "email" | "password">) => Promise<AuthResult>;
@@ -78,11 +78,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: Boolean(user),
       isAdmin: Boolean(user?.isAdmin),
       isLoading,
-      login: async (identifier, password) => {
+      login: async (emailOrPhone, password) => {
         try {
           const data = await apiRequest<{ ok: boolean; user: AuthUser }>("/api/auth/login", {
             method: "POST",
-            body: JSON.stringify({ identifier, password }),
+            body: JSON.stringify({ emailOrPhone, password }),
           });
           setUser(data.user);
           return { ok: true, user: data.user };

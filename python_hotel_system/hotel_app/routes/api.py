@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 from flask_login import current_user, login_required, login_user, logout_user
 from flask_wtf.csrf import generate_csrf
 
@@ -46,6 +46,15 @@ def _json_error(message: str, status_code: int = 400):
     return jsonify({"ok": False, "message": message, "csrfToken": generate_csrf()}), status_code
 
 
+def _request_payload() -> dict:
+    payload = request.get_json(silent=True)
+    if isinstance(payload, dict):
+        return payload
+    if request.form:
+        return request.form.to_dict()
+    return {}
+
+
 @api_bp.get("/health")
 def health():
     return jsonify({"ok": True, "status": "healthy"}), 200
@@ -58,7 +67,7 @@ def auth_me():
 
 @api_bp.post("/auth/register")
 def auth_register():
-    payload = request.get_json(silent=True) or {}
+    payload = _request_payload()
 
     full_name = str(payload.get("fullName", "")).strip()
     email = str(payload.get("email", "")).strip().lower()
@@ -97,12 +106,28 @@ def auth_register():
 
 @api_bp.post("/auth/login")
 def auth_login():
-    payload = request.get_json(silent=True) or {}
-    identifier = str(payload.get("identifier", "")).strip()
+    payload = _request_payload()
+    safe_payload = {
+        key: ("***" if "password" in key.lower() else value)
+        for key, value in payload.items()
+    }
+    current_app.logger.info(
+        "Auth login payload received: content_type=%s is_json=%s payload=%s",
+        request.content_type,
+        request.is_json,
+        safe_payload,
+    )
+
+    identifier = str(
+        payload.get("emailOrPhone")
+        or payload.get("identifier")
+        or payload.get("email")
+        or ""
+    ).strip()
     password = str(payload.get("password", ""))
 
     if not identifier or not password:
-        return _json_error("Email/phone and password are required.")
+        return _json_error("Email/phone and password are required.", 401)
 
     if "@" in identifier:
         user = User.query.filter_by(email=identifier.lower()).first()
@@ -126,7 +151,7 @@ def auth_logout():
 @api_bp.put("/auth/profile")
 @login_required
 def auth_profile():
-    payload = request.get_json(silent=True) or {}
+    payload = _request_payload()
     full_name = str(payload.get("fullName", "")).strip()
     phone = str(payload.get("phone", "")).strip()
     country = str(payload.get("country", "")).strip()
@@ -195,7 +220,7 @@ def api_admin_content_update():
     if not is_admin_user(current_user):
         return _json_error("Admin access is required.", 403)
 
-    payload = request.get_json(silent=True) or {}
+    payload = _request_payload()
     content = payload.get("content", {})
     if not isinstance(content, dict):
         return _json_error("Invalid content payload.")
@@ -207,7 +232,7 @@ def api_admin_content_update():
 @api_bp.post("/bookings")
 @login_required
 def api_bookings():
-    payload = request.get_json(silent=True) or {}
+    payload = _request_payload()
     check_in_raw = str(payload.get("checkIn", "")).strip()
     check_out_raw = str(payload.get("checkOut", "")).strip()
     room_requests = payload.get("rooms", [])
