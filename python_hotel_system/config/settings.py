@@ -38,7 +38,19 @@ def _parse_admin_emails() -> list[str]:
 
 def _parse_allowed_origins() -> list[str]:
     configured = os.getenv("FRONTEND_ORIGINS", "")
-    return [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
+    configured_origins = [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
+    default_origins = [
+        "https://t3h3a.github.io",
+        "http://localhost:4173",
+        "http://127.0.0.1:4173",
+    ]
+
+    combined: list[str] = []
+    for origin in [*configured_origins, *default_origins]:
+        if origin and origin not in combined:
+            combined.append(origin)
+
+    return combined
 
 
 def _env_flag(name: str, default: bool = False) -> bool:

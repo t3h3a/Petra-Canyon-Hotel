@@ -24,7 +24,13 @@ def create_app(config_object: type[Config] = Config) -> Flask:
     if app.config.get("FRONTEND_ORIGINS"):
         CORS(
             app,
-            resources={r"/api/*": {"origins": app.config["FRONTEND_ORIGINS"]}},
+            resources={
+                r"/api/*": {
+                    "origins": app.config["FRONTEND_ORIGINS"],
+                    "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+                    "allow_headers": ["Content-Type", "X-CSRFToken"],
+                },
+            },
             supports_credentials=True,
         )
 

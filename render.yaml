@@ -18,7 +18,7 @@ services:
       - key: PORT
         value: 10000
       - key: FRONTEND_ORIGINS
-        value: https://t3h3a.github.io
+        value: https://t3h3a.github.io,http://localhost:4173,http://127.0.0.1:4173
       - key: SESSION_COOKIE_SAMESITE
         value: None
       - key: SESSION_COOKIE_SECURE
