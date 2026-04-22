@@ -45,10 +45,28 @@ app.post("/api/book", async (req, res) => {
     checkOut,
     adults,
     children,
+    totalGuests,
+    estimatedTotal,
+    rooms,
   } = req.body ?? {};
 
   try {
     const transporter = createTransporter();
+
+    const roomsText = Array.isArray(rooms) && rooms.length
+      ? rooms
+          .map((room, index) =>
+            [
+              `الغرفة ${index + 1}: ${room.roomType || "-"}`,
+              `- البالغون: ${room.adults ?? "-"}`,
+              `- أطفال تحت 6: ${room.childrenUnder6 ?? "-"}`,
+              `- أطفال 6+: ${room.children6Plus ?? "-"}`,
+              `- الأشخاص الإضافيون المحسوبون: ${room.extraGuests ?? "-"}`,
+              `- الإجمالي التقريبي للغرفة: JOD ${room.estimatedTotal ?? "-"}`,
+            ].join("\n"),
+          )
+          .join("\n\n")
+      : "-";
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -67,7 +85,13 @@ app.post("/api/book", async (req, res) => {
         `تاريخ المغادرة: ${checkOut || "-"}`,
         `عدد البالغين: ${adults ?? "-"}`,
         `عدد الأطفال: ${children ?? "-"}`,
+        `إجمالي الضيوف: ${totalGuests ?? "-"}`,
+        `المبلغ التقريبي: JOD ${estimatedTotal ?? "-"}`,
         `نوع الغرفة: ${roomType || "-"}`,
+        "",
+        "تفاصيل الغرف:",
+        roomsText,
+        "",
         `ملاحظات: ${notes || "-"}`,
         "طريقة الدفع: نقدًا عند الوصول",
       ].join("\n"),

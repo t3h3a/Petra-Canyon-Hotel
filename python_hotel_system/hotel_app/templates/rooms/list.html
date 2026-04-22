@@ -1,0 +1,3 @@
+﻿{% extends "base.html" %}
+{% block title %}Rooms{% endblock %}
+{% block content %}<h1 class="h2 mb-4">Rooms</h1><div class="row g-4">{% for room in rooms %}<div class="col-lg-4"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><h2 class="h5">{{ room.room_type }}</h2><p class="text-muted">Room {{ room.room_number }}</p><p>{{ room.description }}</p><p><strong>Price:</strong> JOD {{ "%.2f"|format(room.price) }} / night</p><p><strong>Capacity:</strong> {{ room.capacity }}</p><a class="btn btn-primary" href="/rooms/{{ room.id }}">View Details</a></div></div></div>{% endfor %}</div>{% endblock %}
