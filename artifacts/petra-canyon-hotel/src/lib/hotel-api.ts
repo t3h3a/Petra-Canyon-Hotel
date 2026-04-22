@@ -56,6 +56,7 @@ export const roomKeyToApiType: Record<RoomKey, string> = {
 };
 
 let csrfToken = "";
+let csrfTokenPromise: Promise<string> | null = null;
 
 export function setCsrfToken(token?: string | null) {
   csrfToken = token ?? "";
@@ -63,6 +64,37 @@ export function setCsrfToken(token?: string | null) {
 
 export function getCsrfToken() {
   return csrfToken;
+}
+
+async function ensureCsrfToken(): Promise<void> {
+  // If we already have a token, no need to fetch
+  if (csrfToken) {
+    return;
+  }
+
+  // If a request is already in progress, wait for it
+  if (csrfTokenPromise) {
+    await csrfTokenPromise;
+    return;
+  }
+
+  // Fetch a new CSRF token
+  csrfTokenPromise = (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+        credentials: "include",
+      });
+      const data = (await response.json().catch(() => null)) as (ApiEnvelope) | null;
+      if (data?.csrfToken) {
+        setCsrfToken(data.csrfToken);
+      }
+      return csrfToken;
+    } finally {
+      csrfTokenPromise = null;
+    }
+  })();
+
+  await csrfTokenPromise;
 }
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -73,8 +105,12 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
     headers.set("Content-Type", "application/json");
   }
 
-  if (!["GET", "HEAD", "OPTIONS"].includes(method) && csrfToken) {
-    headers.set("X-CSRFToken", csrfToken);
+  // For POST/PUT/PATCH requests, ensure we have a CSRF token
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    await ensureCsrfToken();
+    if (csrfToken) {
+      headers.set("X-CSRFToken", csrfToken);
+    }
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {

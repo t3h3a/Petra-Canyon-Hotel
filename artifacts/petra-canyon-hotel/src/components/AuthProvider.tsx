@@ -1,129 +1,131 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
+import { apiRequest, setCsrfToken } from "@/lib/hotel-api";
+
 type AuthUser = {
+  id: number;
   fullName: string;
   email: string;
-  password: string;
   phone: string;
   country: string;
+  isAdmin?: boolean;
 };
 
 type AuthProfileInput = {
   fullName: string;
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
   phone?: string;
   country?: string;
+};
+
+type AuthResult = {
+  ok: boolean;
+  message?: string;
+  user?: AuthUser | null;
 };
 
 type AuthContextType = {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => { ok: boolean; message?: string };
-  register: (input: AuthProfileInput) => { ok: boolean; message?: string };
-  logout: () => void;
-  updateProfile: (input: Omit<AuthUser, "password" | "email"> & { email?: string }) => void;
+  isAdmin: boolean;
+  isLoading: boolean;
+  login: (identifier: string, password: string) => Promise<AuthResult>;
+  register: (input: AuthProfileInput & { email: string; password: string }) => Promise<AuthResult>;
+  logout: () => Promise<void>;
+  updateProfile: (input: Omit<AuthProfileInput, "email" | "password">) => Promise<AuthResult>;
 };
-
-const STORAGE_USERS_KEY = "petra-canyon-users";
-const STORAGE_SESSION_KEY = "petra-canyon-session";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function readUsers(): AuthUser[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_USERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as AuthUser[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeUsers(users: AuthUser[]) {
-  window.localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [users, setUsers] = useState<AuthUser[]>([]);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUsers = readUsers();
-    setUsers(storedUsers);
+    let cancelled = false;
 
-    const sessionEmail = window.localStorage.getItem(STORAGE_SESSION_KEY);
-    if (!sessionEmail) return;
+    async function loadSession() {
+      try {
+        const data = await apiRequest<{ ok: boolean; user: AuthUser | null; csrfToken?: string }>("/api/auth/me", {
+          method: "GET",
+        });
 
-    const currentUser = storedUsers.find((item) => item.email.toLowerCase() === sessionEmail.toLowerCase()) ?? null;
-    setUser(currentUser);
+        if (!cancelled) {
+          setUser(data.user);
+          setCsrfToken(data.csrfToken);
+        }
+      } catch {
+        if (!cancelled) {
+          setUser(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadSession();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const value = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthenticated: Boolean(user),
-      login: (email, password) => {
-        const existingUser = users.find((item) => item.email.toLowerCase() === email.trim().toLowerCase());
-        if (!existingUser) {
-          return { ok: false, message: "No account found for this email." };
+      isAdmin: Boolean(user?.isAdmin),
+      isLoading,
+      login: async (identifier, password) => {
+        try {
+          const data = await apiRequest<{ ok: boolean; user: AuthUser }>("/api/auth/login", {
+            method: "POST",
+            body: JSON.stringify({ identifier, password }),
+          });
+          setUser(data.user);
+          return { ok: true, user: data.user };
+        } catch (error) {
+          return { ok: false, message: error instanceof Error ? error.message : "Unable to login." };
         }
-
-        if (existingUser.password !== password) {
-          return { ok: false, message: "Incorrect password." };
+      },
+      register: async ({ fullName, email, password, phone = "", country = "" }) => {
+        try {
+          const data = await apiRequest<{ ok: boolean; user: AuthUser }>("/api/auth/register", {
+            method: "POST",
+            body: JSON.stringify({ fullName, email, password, phone, country }),
+          });
+          setUser(data.user);
+          return { ok: true, user: data.user };
+        } catch (error) {
+          return { ok: false, message: error instanceof Error ? error.message : "Unable to create account." };
         }
-
-        setUser(existingUser);
-        window.localStorage.setItem(STORAGE_SESSION_KEY, existingUser.email);
-        return { ok: true };
       },
-      register: ({ fullName, email, password, phone = "", country = "" }) => {
-        const normalizedEmail = email.trim().toLowerCase();
-        const alreadyExists = users.some((item) => item.email.toLowerCase() === normalizedEmail);
-
-        if (alreadyExists) {
-          return { ok: false, message: "An account with this email already exists." };
+      logout: async () => {
+        try {
+          await apiRequest<{ ok: boolean }>("/api/auth/logout", {
+            method: "POST",
+            body: JSON.stringify({}),
+          });
+        } finally {
+          setUser(null);
         }
-
-        const nextUser: AuthUser = {
-          fullName: fullName.trim(),
-          email: normalizedEmail,
-          password,
-          phone: phone.trim(),
-          country: country.trim(),
-        };
-
-        const nextUsers = [...users, nextUser];
-        setUsers(nextUsers);
-        writeUsers(nextUsers);
-        setUser(nextUser);
-        window.localStorage.setItem(STORAGE_SESSION_KEY, nextUser.email);
-        return { ok: true };
       },
-      logout: () => {
-        setUser(null);
-        window.localStorage.removeItem(STORAGE_SESSION_KEY);
-      },
-      updateProfile: ({ fullName, phone, country }) => {
-        if (!user) return;
-
-        const nextUser: AuthUser = {
-          ...user,
-          fullName: fullName.trim(),
-          phone: phone.trim(),
-          country: country.trim(),
-        };
-
-        const nextUsers = users.map((item) => (item.email === user.email ? nextUser : item));
-        setUsers(nextUsers);
-        writeUsers(nextUsers);
-        setUser(nextUser);
+      updateProfile: async ({ fullName = "", phone = "", country = "" }) => {
+        try {
+          const data = await apiRequest<{ ok: boolean; user: AuthUser }>("/api/auth/profile", {
+            method: "PUT",
+            body: JSON.stringify({ fullName, phone, country }),
+          });
+          setUser(data.user);
+          return { ok: true, user: data.user };
+        } catch (error) {
+          return { ok: false, message: error instanceof Error ? error.message : "Unable to update profile." };
+        }
       },
     }),
-    [user, users],
+    [isLoading, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
