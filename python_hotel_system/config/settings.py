@@ -76,6 +76,9 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
     HOTEL_EMAIL = os.getenv("HOTEL_EMAIL", "hotel@example.com")
     FRONTEND_ORIGINS = _parse_allowed_origins()
+    # GitHub Pages calls the API from a different HTTPS origin, so Flask-WTF's
+    # same-origin referrer enforcement rejects valid token-based requests.
+    WTF_CSRF_SSL_STRICT = False
     SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
     SESSION_COOKIE_SECURE = _env_flag("SESSION_COOKIE_SECURE", False)
     ADMIN_EMAILS = _parse_admin_emails()
