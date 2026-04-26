@@ -15,6 +15,7 @@ type RoomCardProps = {
   badge: string;
   ctaLabel: string;
   ctaHref: string;
+  extraBedNote?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
 };
@@ -33,6 +34,7 @@ export function RoomCard({
   badge,
   ctaLabel,
   ctaHref,
+  extraBedNote,
   secondaryLabel,
   secondaryHref,
 }: RoomCardProps) {
@@ -92,7 +94,7 @@ export function RoomCard({
 
           <p className="mt-6 flex items-start gap-3 rounded-2xl bg-secondary/35 px-4 py-3 text-sm leading-6 text-muted-foreground">
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span>Any guest aged 6 or more needs an extra bed when exceeding the room's base capacity.</span>
+            <span>{extraBedNote || "Any guest aged 6 or more needs an extra bed when exceeding the room's base capacity."}</span>
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

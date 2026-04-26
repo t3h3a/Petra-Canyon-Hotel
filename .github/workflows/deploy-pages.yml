@@ -41,7 +41,6 @@ jobs:
         env:
           PORT: 4173
           BASE_PATH: /Petra-Canyon-Hotel/
-          VITE_API_BASE_URL: https://petra-canyon-hotel-api.onrender.com
         run: pnpm --filter @workspace/petra-canyon-hotel run build
 
       - name: Prepare SPA fallback

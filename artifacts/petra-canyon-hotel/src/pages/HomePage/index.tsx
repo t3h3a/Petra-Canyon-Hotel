@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "wouter";
 
 import { Footer } from "@/components/Footer";
@@ -9,12 +9,13 @@ import { Navbar } from "@/components/Navbar";
 import { ServicesSection } from "@/components/ServicesSection";
 import { useLanguage } from "@/components/LanguageProvider";
 import { amenityHighlights, diningMoments, getLocalizedRoom, homeHeroSlides, siteImages } from "@/data";
-import { apiRoomTypeToKey, fetchApiRooms, type ApiRoom } from "@/lib/hotel-api";
+import { formatRoomPrice, useSheetRoomData } from "@/lib/sheet-room-data";
 import { useSiteContent } from "@/lib/site-content";
 
 export default function HomePage() {
   const { language, t } = useLanguage();
   const { content } = useSiteContent();
+  const { roomSettings, isLoading: isRatesLoading, error: ratesError } = useSheetRoomData();
   const copy = {
     badge: content.homePage.badge[language],
     title: content.homePage.title[language],
@@ -31,39 +32,15 @@ export default function HomePage() {
     diningEyebrow: content.homePage.diningEyebrow[language],
     diningTitle: content.homePage.diningTitle[language],
     diningLink: content.homePage.diningLink[language],
-    guestsMax: content.homePage.guestsMax[language],
   };
-  const [apiRooms, setApiRooms] = useState<ApiRoom[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadRooms() {
-      try {
-        const rooms = await fetchApiRooms();
-        if (!cancelled) {
-          setApiRooms(rooms);
-        }
-      } catch {
-        if (!cancelled) {
-          setApiRooms([]);
-        }
-      }
-    }
-
-    void loadRooms();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const featuredRooms = useMemo(
     () =>
       content.rooms.slice(0, 2).map((room) => ({
         room,
-        apiRoom: apiRooms.find((apiRoom) => apiRoomTypeToKey[apiRoom.roomType] === room.key) ?? null,
+        rate: roomSettings[room.key],
       })),
-    [apiRooms, content.rooms],
+    [content.rooms, roomSettings],
   );
 
   return (
@@ -116,19 +93,26 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-[linear-gradient(180deg,rgba(246,239,232,0.92),rgba(242,234,226,0.64))] py-16 sm:py-20">
         <div className="container mx-auto grid gap-10 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">{copy.featuredEyebrow}</p>
-            <h2 className="mt-4 text-3xl font-serif sm:text-4xl">{t.rooms.title}</h2>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">{copy.featuredEyebrow}</p>
+                <h2 className="mt-4 text-3xl font-serif sm:text-4xl">{t.rooms.title}</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isRatesLoading ? "Updating live rates..." : ratesError ? "Showing fallback rates." : "Live rates from Google Sheets"}
+              </p>
+            </div>
+
             <div className="mt-8 grid gap-4">
-              {featuredRooms.map(({ room, apiRoom }) => (
+              {featuredRooms.map(({ room, rate }) => (
                 <div key={room.key} className="rounded-[1.5rem] border border-white/60 bg-white/80 p-5 shadow-[0_18px_55px_rgba(49,27,18,0.07)] backdrop-blur-sm transition-transform duration-500 hover:-translate-y-1">
                   <div className="flex items-center justify-between gap-4">
                     <h3 className="text-xl font-serif">{getLocalizedRoom(room, language).name}</h3>
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                      {apiRoom ? `JOD ${apiRoom.price}` : room.currentPrice}
+                      {formatRoomPrice(rate.price)}
                     </span>
                   </div>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">{getLocalizedRoom(room, language).description}</p>
-                  {apiRoom ? <p className="mt-3 text-sm font-medium text-primary">{apiRoom.capacity} {copy.guestsMax}</p> : null}
                 </div>
               ))}
             </div>

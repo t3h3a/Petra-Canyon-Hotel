@@ -69,7 +69,7 @@ export function BookingForm({
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">{labels.email}</label>
-          <Input type="email" value={form.email} readOnly className="h-12 rounded-2xl border-primary/10 bg-secondary/25" />
+          <Input type="email" value={form.email} onChange={(e) => onChangeField("email", e.target.value)} required className="h-12 rounded-2xl border-primary/10 bg-background/70" />
         </div>
       </div>
 

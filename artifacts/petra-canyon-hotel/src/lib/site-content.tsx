@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-import { apiRequest } from "@/lib/hotel-api";
 import { hotelLocationInfo as defaultHotelLocationInfo } from "@/data/hotelInfo";
 import { roomCatalog as defaultRoomCatalog, type RoomCatalogItem } from "@/data/roomsData";
 
@@ -106,6 +105,9 @@ export const defaultSiteContent: SiteContent = {
   rooms: defaultRoomCatalog,
 };
 
+const ROOMS_API =
+  "https://opensheet.elk.sh/1YUsCLjsVjk6MJjHld4Hep3OiOgRQL6MFSVKjUeZMX5s/Rooms";
+
 function mergeSiteContent(partial?: Partial<SiteContent> | null): SiteContent {
   if (!partial) {
     return defaultSiteContent;
@@ -147,8 +149,14 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = async () => {
-    const data = await apiRequest<{ ok: boolean; content: Partial<SiteContent> }>("/api/site-content", { method: "GET" });
-    setContent(mergeSiteContent(data.content));
+    try {
+      const response = await fetch(ROOMS_API);
+      const data = await response.json();
+      console.log("Rooms:", data);
+      setContent(defaultSiteContent);
+    } catch {
+      setContent(defaultSiteContent);
+    }
   };
 
   useEffect(() => {
@@ -156,9 +164,11 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
     async function load() {
       try {
-        const data = await apiRequest<{ ok: boolean; content: Partial<SiteContent> }>("/api/site-content", { method: "GET" });
+        const response = await fetch(ROOMS_API);
+        const data = await response.json();
+        console.log("Rooms:", data);
         if (!cancelled) {
-          setContent(mergeSiteContent(data.content));
+          setContent(defaultSiteContent);
         }
       } catch {
         if (!cancelled) {

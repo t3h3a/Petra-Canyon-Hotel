@@ -5,8 +5,6 @@
   "scripts": {
     "dev": "pnpm --filter @workspace/petra-canyon-hotel run dev",
     "dev:hotel": "pnpm --filter @workspace/petra-canyon-hotel run dev",
-    "dev:api": "python python_hotel_system/app.py",
-    "serve:api": "python python_hotel_system/serve.py",
     "build:hotel": "pnpm --filter @workspace/petra-canyon-hotel run build",
     "serve:hotel": "pnpm --filter @workspace/petra-canyon-hotel run serve",
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",

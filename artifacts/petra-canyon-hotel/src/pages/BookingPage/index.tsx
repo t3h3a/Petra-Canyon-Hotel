@@ -1,18 +1,22 @@
 import { format, parseISO } from "date-fns";
 import { CalendarDays, CheckCircle2, Mail, MapPin, Phone } from "lucide-react";
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "wouter";
 
-import { useAuth } from "@/components/AuthProvider";
 import { BookingForm } from "@/components/BookingForm";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { useLanguage } from "@/components/LanguageProvider";
-import { appendStoredBookings } from "@/lib/booking-storage";
-import { apiRequest, roomKeyToApiType, type BookingSummary } from "@/lib/hotel-api";
+import {
+  getEffectiveRoomCapacity,
+  ROOM_INCLUDED_GUESTS,
+  useSheetRoomData,
+} from "@/lib/sheet-room-data";
 import { getLocalizedRoom, siteImages, type RoomKey } from "@/data";
 import { useSiteContent } from "@/lib/site-content";
+
+const WHATSAPP_NUMBER = "9627XXXXXXXX";
 
 type RoomSelection = {
   id: string;
@@ -20,17 +24,6 @@ type RoomSelection = {
   adults: number;
   childrenUnder6: number;
   children6Plus: number;
-};
-
-const roomPolicies: Record<RoomKey, { basePrice: number; maxGuests: number; extraPersonFee: number }> = {
-  standardSingle: { basePrice: 50, maxGuests: 1, extraPersonFee: 15 },
-  standardDouble: { basePrice: 60, maxGuests: 2, extraPersonFee: 15 },
-  standardTwin: { basePrice: 60, maxGuests: 2, extraPersonFee: 15 },
-  deluxeDouble: { basePrice: 65, maxGuests: 3, extraPersonFee: 15 },
-  deluxeTwin: { basePrice: 65, maxGuests: 3, extraPersonFee: 15 },
-  superiorTriple: { basePrice: 85, maxGuests: 4, extraPersonFee: 15 },
-  suite: { basePrice: 105, maxGuests: 3, extraPersonFee: 15 },
-  presidentialSuite: { basePrice: 150, maxGuests: 3, extraPersonFee: 15 },
 };
 
 const roomTypeOrder: RoomKey[] = [
@@ -50,12 +43,8 @@ const copyByLanguage = {
     eyebrow: "Direct reservation request",
     title: "Build your stay request room by room",
     body: "Add one room or several rooms, choose the room type for each one, then review the estimated amount before sending the request.",
-    loginTitle: "Login first",
-    loginBody: "To send the reservation request from your account, log in or create an account first.",
-    loginAction: "Login",
-    signupAction: "Create account",
     formTitle: "Contact details",
-    formBody: "Your account details are already filled in. Update your phone, arrival time, and notes, then send the request.",
+    formBody: "Enter your details, arrival time, and notes, then send the reservation request directly to the hotel.",
     fullName: "Full name",
     email: "Email address",
     phone: "Phone number",
@@ -73,7 +62,7 @@ const copyByLanguage = {
     removeRoom: "Remove room",
     roomSummary: "Room summary",
     estimateTitle: "Estimated amount",
-    estimateBody: "This is an approximate amount based on the room prices and extra-person policy. Final confirmation remains with the hotel.",
+    estimateBody: "This is an approximate amount based on the live room prices and extra-bed policy. Final confirmation remains with the hotel.",
     totalEstimate: "Approximate total",
     send: "Send reservation request",
     sending: "Sending request...",
@@ -86,18 +75,17 @@ const copyByLanguage = {
     extraGuests: "Extra guests",
     estimatedTotal: "Estimated total",
     guests: "guests",
+    ratesLoading: "Updating live rates...",
+    ratesFallback: "Showing fallback rates.",
+    ratesLive: "Live rates from Google Sheets",
   },
   ar: {
     back: "العودة إلى الرئيسية",
     eyebrow: "طلب حجز مباشر",
-    title: "رتّب طلب إقامتك غرفة غرفة",
+    title: "رتب طلب إقامتك غرفة غرفة",
     body: "أضف غرفة واحدة أو عدة غرف، ثم راجع المبلغ التقريبي قبل إرسال الطلب.",
-    loginTitle: "سجل الدخول أولاً",
-    loginBody: "حتى ترسل الطلب من داخل حسابك، سجل الدخول أو أنشئ حساباً أولاً.",
-    loginAction: "تسجيل الدخول",
-    signupAction: "إنشاء حساب",
     formTitle: "معلومات التواصل",
-    formBody: "بيانات الحساب تم تعبئتها تلقائياً. عدّل الهاتف ووقت الوصول والملاحظات ثم أرسل الطلب.",
+    formBody: "أدخل معلوماتك ووقت الوصول والملاحظات ثم أرسل طلب الحجز مباشرة إلى الفندق.",
     fullName: "الاسم الكامل",
     email: "البريد الإلكتروني",
     phone: "رقم الهاتف",
@@ -115,7 +103,7 @@ const copyByLanguage = {
     removeRoom: "حذف الغرفة",
     roomSummary: "ملخص الغرفة",
     estimateTitle: "المبلغ التقريبي",
-    estimateBody: "هذا مبلغ تقريبي حسب أسعار الغرف وسياسة الأشخاص الإضافيين، والتأكيد النهائي يكون من الفندق.",
+    estimateBody: "هذا مبلغ تقريبي حسب الأسعار المباشرة وسياسة السرير الإضافي، والتأكيد النهائي يكون من الفندق.",
     totalEstimate: "الإجمالي التقريبي",
     send: "إرسال طلب الحجز",
     sending: "جارٍ إرسال الطلب...",
@@ -128,18 +116,17 @@ const copyByLanguage = {
     extraGuests: "الضيوف الإضافيون",
     estimatedTotal: "الإجمالي التقريبي",
     guests: "ضيوف",
+    ratesLoading: "يتم تحديث الأسعار المباشرة...",
+    ratesFallback: "يتم عرض الأسعار الاحتياطية.",
+    ratesLive: "أسعار مباشرة من Google Sheets",
   },
   fr: {
     back: "Retour à l'accueil",
     eyebrow: "Demande de réservation directe",
     title: "Composez votre demande chambre par chambre",
     body: "Ajoutez une ou plusieurs chambres, puis vérifiez le montant estimatif avant l'envoi.",
-    loginTitle: "Connectez-vous d'abord",
-    loginBody: "Pour envoyer la demande depuis votre compte, connectez-vous ou créez un compte avant de continuer.",
-    loginAction: "Connexion",
-    signupAction: "Créer un compte",
     formTitle: "Coordonnées",
-    formBody: "Les données du compte sont préremplies. Ajoutez votre téléphone, votre heure d'arrivée et vos notes.",
+    formBody: "Renseignez vos coordonnées, votre heure d'arrivée et vos notes, puis envoyez directement la demande à l'hôtel.",
     fullName: "Nom complet",
     email: "E-mail",
     phone: "Téléphone",
@@ -157,7 +144,7 @@ const copyByLanguage = {
     removeRoom: "Supprimer la chambre",
     roomSummary: "Résumé de la chambre",
     estimateTitle: "Montant estimatif",
-    estimateBody: "Montant indicatif basé sur les tarifs des chambres et la politique des voyageurs supplémentaires.",
+    estimateBody: "Montant indicatif basé sur les tarifs en direct et la politique du lit supplémentaire.",
     totalEstimate: "Total estimatif",
     send: "Envoyer la demande",
     sending: "Envoi en cours...",
@@ -170,6 +157,9 @@ const copyByLanguage = {
     extraGuests: "Voyageurs supplémentaires",
     estimatedTotal: "Total estimatif",
     guests: "voyageurs",
+    ratesLoading: "Mise à jour des tarifs en direct...",
+    ratesFallback: "Affichage des tarifs de secours.",
+    ratesLive: "Tarifs en direct depuis Google Sheets",
   },
 } as const;
 
@@ -177,14 +167,10 @@ function getGuestCount(room: RoomSelection) {
   return room.adults + room.childrenUnder6 + room.children6Plus;
 }
 
-function getAllowedRoomTypes(guestCount: number) {
-  return roomTypeOrder.filter((roomType) => roomPolicies[roomType].maxGuests >= guestCount);
-}
-
 export default function BookingPage() {
   const { language } = useLanguage();
-  const { user, isAuthenticated, isLoading } = useAuth();
   const { content } = useSiteContent();
+  const { roomSettings, extraBedPrice, isLoading: isRatesLoading, error: ratesError } = useSheetRoomData();
   const copy = copyByLanguage[language];
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
 
@@ -212,20 +198,6 @@ export default function BookingPage() {
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-      fullName: user.fullName,
-      email: user.email,
-      phone: user.phone,
-      country: user.country,
-    }));
-  }, [user]);
-
   const safeCheckIn = parseISO(checkIn);
   const safeCheckOut = parseISO(checkOut);
   const nights = Math.max(1, Math.ceil((safeCheckOut.getTime() - safeCheckIn.getTime()) / 86400000));
@@ -233,27 +205,33 @@ export default function BookingPage() {
   const roomRows = rooms.map((room) => {
     const localizedRoom = getLocalizedRoom(content.rooms.find((entry) => entry.key === room.roomType) ?? content.rooms[0], language);
     const guestCount = getGuestCount(room);
-    const allowedRoomTypes = getAllowedRoomTypes(guestCount);
-    const policy = roomPolicies[room.roomType];
-    const extraGuests = Math.max(0, guestCount - 2);
-    const roomTotal = nights * (policy.basePrice + extraGuests * policy.extraPersonFee);
+    const settings = roomSettings[room.roomType];
+    const includedGuests = ROOM_INCLUDED_GUESTS[room.roomType];
+    const allowedCapacity = getEffectiveRoomCapacity(room.roomType, settings);
+    const extraGuests = Math.max(0, guestCount - includedGuests);
+    const extraGuestFee = settings.extraBedAllowed ? extraBedPrice : 0;
+    const roomTotal = nights * (settings.price + extraGuests * extraGuestFee);
 
     return {
       ...room,
       title: localizedRoom.name,
-      options: roomTypeOrder.map((roomType) => ({
-        value: roomType,
-        label: getLocalizedRoom(content.rooms.find((entry) => entry.key === roomType) ?? content.rooms[0], language).name,
-        disabled: !allowedRoomTypes.includes(roomType),
-      })),
+      options: roomTypeOrder.map((roomType) => {
+        const optionSettings = roomSettings[roomType];
+        const optionCapacity = getEffectiveRoomCapacity(roomType, optionSettings);
+        return {
+          value: roomType,
+          label: getLocalizedRoom(content.rooms.find((entry) => entry.key === roomType) ?? content.rooms[0], language).name,
+          disabled: guestCount > optionCapacity,
+        };
+      }),
       summary: `${localizedRoom.name} - ${guestCount} ${copy.guests}`,
       totals: [
-        `${copy.capacity}: ${policy.maxGuests}`,
-        `${copy.base}: JOD ${policy.basePrice}`,
+        `${copy.capacity}: ${allowedCapacity}`,
+        `${copy.base}: JOD ${settings.price}`,
         `${copy.extraGuests}: ${extraGuests}`,
         `${copy.estimatedTotal}: JOD ${roomTotal}`,
       ],
-      invalid: guestCount > policy.maxGuests,
+      invalid: guestCount > allowedCapacity,
       totalPrice: roomTotal,
       guestCount,
     };
@@ -274,8 +252,8 @@ export default function BookingPage() {
     event.preventDefault();
     setError("");
 
-    if (!isAuthenticated || !user) {
-      setError(copy.loginBody);
+    if (!form.fullName.trim() || !form.email.trim() || !form.phone.trim() || !form.country.trim()) {
+      setError(copy.requestFailed);
       return;
     }
 
@@ -285,29 +263,50 @@ export default function BookingPage() {
     }
 
     setIsSubmitting(true);
-    try {
-      const response = await apiRequest<{ ok: boolean; bookings: BookingSummary[] }>("/api/bookings", {
-        method: "POST",
-        body: JSON.stringify({
-          checkIn,
-          checkOut,
-          notes: [form.arrivalTime ? `Arrival time: ${form.arrivalTime}` : "", form.notes].filter(Boolean).join("\n"),
-          rooms: roomRows.map((room) => ({
-            roomType: roomKeyToApiType[room.roomType],
-            adults: room.adults,
-            childrenUnder6: room.childrenUnder6,
-            children6Plus: room.children6Plus,
-          })),
-        }),
-      });
+    const message = `
+*📩 Booking Request*
 
-      appendStoredBookings(user.email, response.bookings);
-      setIsSent(true);
-    } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : copy.requestFailed);
-    } finally {
-      setIsSubmitting(false);
-    }
+━━━━━━━━━━━━━━━
+
+*👤 Personal Information:*
+Name: ${form.fullName}
+Phone: ${form.phone}
+Email: ${form.email}
+Country: ${form.country}
+
+━━━━━━━━━━━━━━━
+
+*📅 Booking Details:*
+Check-in: ${checkIn}
+Check-out: ${checkOut}
+Nights: ${nights}
+Arrival Time: ${form.arrivalTime || "Not specified"}
+
+━━━━━━━━━━━━━━━
+
+*🏨 Room Details:*
+${roomRows
+  .map(
+    (room, index) =>
+      `Room ${index + 1}: ${room.title}\nAdults: ${room.adults}\nChildren under 6: ${room.childrenUnder6}\nChildren 6+: ${room.children6Plus}\nEstimated Total: JOD ${room.totalPrice}`,
+  )
+  .join("\n\n")}
+
+━━━━━━━━━━━━━━━
+
+*📝 Notes:*
+${form.notes || "No notes"}
+
+━━━━━━━━━━━━━━━
+Sent from hotel website
+`.trim();
+
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      "_blank",
+    );
+    setIsSent(true);
+    setIsSubmitting(false);
   };
 
   return (
@@ -326,9 +325,16 @@ export default function BookingPage() {
           </Link>
 
           <div className="mt-6 rounded-[2rem] border border-primary/10 bg-white/90 p-6 shadow-[0_20px_70px_rgba(43,27,21,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">{copy.eyebrow}</p>
-            <h1 className="mt-4 text-4xl font-serif text-foreground">{copy.title}</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">{copy.body}</p>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">{copy.eyebrow}</p>
+                <h1 className="mt-4 text-4xl font-serif text-foreground">{copy.title}</h1>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground sm:text-base">{copy.body}</p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isRatesLoading ? copy.ratesLoading : ratesError ? copy.ratesFallback : copy.ratesLive}
+              </p>
+            </div>
 
             <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
               <div>
@@ -360,58 +366,43 @@ export default function BookingPage() {
               </div>
             </div>
 
-            {!isAuthenticated ? (
-              <div className="mt-8 rounded-[1.75rem] border border-primary/10 bg-secondary/20 p-8">
-                <h2 className="text-3xl font-serif text-foreground">{copy.loginTitle}</h2>
-                <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">{copy.loginBody}</p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link href="/login" className="inline-flex h-12 items-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground">
-                    {copy.loginAction}
-                  </Link>
-                  <Link href="/signup" className="inline-flex h-12 items-center rounded-full border border-border px-6 text-sm font-semibold text-foreground">
-                    {copy.signupAction}
-                  </Link>
-                </div>
-              </div>
-            ) : isLoading ? null : (
-              <BookingForm
-                labels={{
-                  fullName: copy.fullName,
-                  email: copy.email,
-                  phone: copy.phone,
-                  country: copy.country,
-                  arrivalTime: copy.arrivalTime,
-                  notes: copy.notes,
-                  notesPlaceholder: copy.notesPlaceholder,
-                  roomsTitle: copy.roomsTitle,
-                  roomLabel: copy.roomLabel,
-                  roomType: copy.roomType,
-                  adults: copy.adults,
-                  childUnder6: copy.childUnder6,
-                  childOver6: copy.childOver6,
-                  addRoom: copy.addRoom,
-                  removeRoom: copy.removeRoom,
-                  roomSummary: copy.roomSummary,
-                  estimateTitle: copy.estimateTitle,
-                  estimateBody: copy.estimateBody,
-                  totalEstimate: copy.totalEstimate,
-                  send: copy.send,
-                  sending: copy.sending,
-                  roomsHint: copy.roomsHint,
-                }}
-                form={form}
-                rooms={roomRows}
-                estimate={totalEstimate}
-                canAddRoom={rooms.length < 4}
-                submitting={isSubmitting}
-                onChangeField={updateField}
-                onRoomTypeChange={(roomId, value) => updateRoom(roomId, (room) => ({ ...room, roomType: value as RoomKey }))}
-                onGuestChange={(roomId, field, value) => updateRoom(roomId, (room) => ({ ...room, [field]: Math.max(field === "adults" ? 1 : 0, value) }))}
-                onAddRoom={() => setRooms((current) => [...current, { id: `room-${current.length + 1}`, roomType: "standardDouble", adults: 2, childrenUnder6: 0, children6Plus: 0 }])}
-                onRemoveRoom={(roomId) => setRooms((current) => current.filter((room) => room.id !== roomId))}
-                onSubmit={handleSubmit}
-              />
-            )}
+            <BookingForm
+              labels={{
+                fullName: copy.fullName,
+                email: copy.email,
+                phone: copy.phone,
+                country: copy.country,
+                arrivalTime: copy.arrivalTime,
+                notes: copy.notes,
+                notesPlaceholder: copy.notesPlaceholder,
+                roomsTitle: copy.roomsTitle,
+                roomLabel: copy.roomLabel,
+                roomType: copy.roomType,
+                adults: copy.adults,
+                childUnder6: copy.childUnder6,
+                childOver6: copy.childOver6,
+                addRoom: copy.addRoom,
+                removeRoom: copy.removeRoom,
+                roomSummary: copy.roomSummary,
+                estimateTitle: copy.estimateTitle,
+                estimateBody: copy.estimateBody,
+                totalEstimate: copy.totalEstimate,
+                send: copy.send,
+                sending: copy.sending,
+                roomsHint: copy.roomsHint,
+              }}
+              form={form}
+              rooms={roomRows}
+              estimate={totalEstimate}
+              canAddRoom={rooms.length < 4}
+              submitting={isSubmitting}
+              onChangeField={updateField}
+              onRoomTypeChange={(roomId, value) => updateRoom(roomId, (room) => ({ ...room, roomType: value as RoomKey }))}
+              onGuestChange={(roomId, field, value) => updateRoom(roomId, (room) => ({ ...room, [field]: Math.max(field === "adults" ? 1 : 0, value) }))}
+              onAddRoom={() => setRooms((current) => [...current, { id: `room-${current.length + 1}`, roomType: "standardDouble", adults: 2, childrenUnder6: 0, children6Plus: 0 }])}
+              onRemoveRoom={(roomId) => setRooms((current) => current.filter((room) => room.id !== roomId))}
+              onSubmit={handleSubmit}
+            />
 
             {error ? <p className="mt-6 text-sm font-medium text-destructive">{error}</p> : null}
 

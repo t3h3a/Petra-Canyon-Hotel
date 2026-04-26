@@ -1,8 +1,8 @@
-import { useLanguage } from "@/components/LanguageProvider";
-import { useAuth } from "@/components/AuthProvider";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
+
+import { useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { siteImages } from "@/data";
 
@@ -10,7 +10,6 @@ const ARABIC_LABEL = "\u0639\u0631\u0628\u064A";
 
 export function Navbar() {
   const { language, setLanguage, t, dir } = useLanguage();
-  const { isAuthenticated, isAdmin } = useAuth();
   const [location] = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,9 +29,8 @@ export function Navbar() {
     { name: t.nav.amenities, href: "/amenities" },
     { name: t.nav.restaurant, href: "/restaurant" },
     { name: t.nav.location, href: "/location" },
+    { name: t.booking.search, href: "/booking-request" },
   ];
-  const accountHref = isAuthenticated ? "/account" : "/login";
-  const accountLabel = isAuthenticated ? "Account" : "Login";
 
   return (
     <nav
@@ -59,45 +57,17 @@ export function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                className={`text-[15px] font-medium tracking-wide transition-colors hover:text-primary ${
-                  location === link.href
-                    ? "text-primary"
-                    : isScrolled
-                      ? "text-foreground"
-                      : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
-                }`}
-              >
-                {link.name}
-                </Link>
-              ))}
-
-              <Link
-                href={accountHref}
-                className={`text-[15px] font-medium tracking-wide transition-colors hover:text-primary ${
-                  location === accountHref
-                    ? "text-primary"
-                    : isScrolled
-                      ? "text-foreground"
-                      : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
-                }`}
-              >
-                {accountLabel}
-              </Link>
-
-              {isAdmin ? (
-                <Link
-                  href="/admin"
                   className={`text-[15px] font-medium tracking-wide transition-colors hover:text-primary ${
-                    location === "/admin"
+                    location === link.href
                       ? "text-primary"
                       : isScrolled
                         ? "text-foreground"
                         : "text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.58)]"
                   }`}
                 >
-                  Admin
+                  {link.name}
                 </Link>
-              ) : null}
+              ))}
 
               <div className={`flex items-center gap-2.5 ${dir === "rtl" ? "mr-4 border-r border-border/30 pr-6" : "ml-4 border-l border-border/30 pl-6"}`}>
                 <button
@@ -186,16 +156,12 @@ export function Navbar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
-      {isMobileMenuOpen && (
+      {isMobileMenuOpen ? (
         <div className="absolute left-4 right-4 top-full rounded-2xl border border-border bg-background/95 px-4 py-4 shadow-xl backdrop-blur-md lg:hidden">
           <div className="flex flex-col gap-1">
             {navLinks.map((link) => (
@@ -208,22 +174,6 @@ export function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
-              href={accountHref}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="rounded-lg px-3 py-3 text-left font-medium text-foreground transition-colors hover:bg-secondary/40"
-            >
-              {accountLabel}
-            </Link>
-            {isAdmin ? (
-              <Link
-                href="/admin"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-3 text-left font-medium text-foreground transition-colors hover:bg-secondary/40"
-              >
-                Admin
-              </Link>
-            ) : null}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2 border-t border-border/60 pt-4">
@@ -238,7 +188,7 @@ export function Navbar() {
             </Button>
           </div>
         </div>
-      )}
+      ) : null}
     </nav>
   );
 }
