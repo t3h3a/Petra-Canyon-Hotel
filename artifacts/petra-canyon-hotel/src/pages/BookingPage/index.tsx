@@ -13,10 +13,8 @@ import {
   ROOM_INCLUDED_GUESTS,
   useSheetRoomData,
 } from "@/lib/sheet-room-data";
-import { getLocalizedRoom, siteImages, type RoomKey } from "@/data";
+import { getLocalizedRoom, HOTEL_PHONE, siteImages, type RoomKey } from "@/data";
 import { useSiteContent } from "@/lib/site-content";
-
-const WHATSAPP_NUMBER = "9627XXXXXXXX";
 
 type RoomSelection = {
   id: string;
@@ -302,7 +300,7 @@ Sent from hotel website
 `.trim();
 
     window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${HOTEL_PHONE}?text=${encodeURIComponent(message)}`,
       "_blank",
     );
     setIsSent(true);

@@ -9,6 +9,9 @@ import poolMain from "@/images/pool/pool-main.png";
 import restaurantMain from "@/images/restaurant/restaurant-main.png";
 import roomMain from "@/images/rooms/room-main.png";
 
+export const HOTEL_EMAIL = "tthhaaeeeerr@gmail.com";
+export const HOTEL_PHONE = "962779460107"; // without + for WhatsApp URL
+
 export const siteImages = {
   hero: heroMain,
   room: roomMain,
@@ -23,8 +26,8 @@ export const hotelLocationInfo = {
   embedUrl: "https://www.google.com/maps?q=30.3105843,35.4852045&hl=en&z=17&output=embed",
   coordinates: "30.3105843, 35.4852045",
   areaLabel: "Wadi Musa, Petra, Jordan",
-  hotelEmail: "hotel@example.com",
-  hotelPhone: "+96232154333",
+  hotelEmail: HOTEL_EMAIL,
+  hotelPhone: `+${HOTEL_PHONE}`,
 };
 
 export const homeHeroSlides = [petra1, petra2, petra3, petra4, petra5];

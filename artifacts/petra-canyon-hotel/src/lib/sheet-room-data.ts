@@ -4,6 +4,7 @@ import type { Language } from "@/lib/i18n";
 import type { RoomKey } from "@/data";
 
 type SheetRoomRow = {
+  id?: string;
   "Room Type"?: string;
   Price?: string;
   "Extra Bed Allowed"?: string;
@@ -65,25 +66,36 @@ const roomsEndpoint =
 const policiesEndpoint =
   "https://opensheet.elk.sh/1YUsCLjsVjk6MJjHld4Hep3OiOgRQL6MFSVKjUeZMX5s/Policies";
 
-const roomTypeAliasMap: Record<string, RoomKey> = {
-  single: "standardSingle",
-  standardsingle: "standardSingle",
-  standardsingleroom: "standardSingle",
-  double: "standardDouble",
-  standarddouble: "standardDouble",
-  standarddoubleroom: "standardDouble",
-  twin: "standardTwin",
-  standardtwin: "standardTwin",
-  standardtwinroom: "standardTwin",
-  deluxedouble: "deluxeDouble",
-  deluxedoubleroom: "deluxeDouble",
-  deluxetwin: "deluxeTwin",
-  deluxetwinroom: "deluxeTwin",
-  triple: "superiorTriple",
-  tripleroom: "superiorTriple",
-  superiortriple: "superiorTriple",
-  suite: "suite",
-  presidentialsuite: "presidentialSuite",
+const roomIdMap: Record<string, RoomKey[]> = {
+  single: ["standardSingle"],
+  standard: ["standardDouble", "standardTwin"],
+  deluxe: ["deluxeDouble", "deluxeTwin"],
+  triple: ["superiorTriple"],
+  suite: ["suite"],
+  presidential: ["presidentialSuite"],
+};
+
+const roomTypeAliasMap: Record<string, RoomKey[]> = {
+  single: ["standardSingle"],
+  standardsingle: ["standardSingle"],
+  standardsingleroom: ["standardSingle"],
+  double: ["standardDouble"],
+  standarddouble: ["standardDouble"],
+  standarddoubleroom: ["standardDouble"],
+  twin: ["standardTwin"],
+  standardtwin: ["standardTwin"],
+  standardtwinroom: ["standardTwin"],
+  standardtwindouble: ["standardDouble", "standardTwin"],
+  deluxedouble: ["deluxeDouble"],
+  deluxedoubleroom: ["deluxeDouble"],
+  deluxetwin: ["deluxeTwin"],
+  deluxetwinroom: ["deluxeTwin"],
+  deluxetwindouble: ["deluxeDouble", "deluxeTwin"],
+  triple: ["superiorTriple"],
+  tripleroom: ["superiorTriple"],
+  superiortriple: ["superiorTriple"],
+  suite: ["suite"],
+  presidentialsuite: ["presidentialSuite"],
 };
 
 function normalize(value: string) {
@@ -114,12 +126,13 @@ function toBooleanFlag(value: string | undefined, fallback: boolean) {
   return fallback;
 }
 
-function mapRoomTypeToKey(value: string | undefined): RoomKey | null {
-  if (!value) {
-    return null;
+function mapRoomRowToKeys(row: SheetRoomRow): RoomKey[] {
+  const idKeys = row.id ? roomIdMap[normalize(row.id)] : undefined;
+  if (idKeys) {
+    return idKeys;
   }
 
-  return roomTypeAliasMap[normalize(value)] ?? null;
+  return row["Room Type"] ? roomTypeAliasMap[normalize(row["Room Type"])] ?? [] : [];
 }
 
 export function formatRoomPrice(price: number) {
@@ -226,15 +239,17 @@ export function useSheetRoomData(): SheetRoomState {
         };
 
         for (const row of Array.isArray(roomsData) ? roomsData : []) {
-          const roomKey = mapRoomTypeToKey(row["Room Type"]);
-          if (!roomKey) {
+          const roomKeys = mapRoomRowToKeys(row);
+          if (!roomKeys.length) {
             continue;
           }
 
-          nextSettings[roomKey] = {
-            price: parseNumber(row.Price, nextSettings[roomKey].price),
-            extraBedAllowed: toBooleanFlag(row["Extra Bed Allowed"], nextSettings[roomKey].extraBedAllowed),
-          };
+          for (const roomKey of roomKeys) {
+            nextSettings[roomKey] = {
+              price: parseNumber(row.Price, nextSettings[roomKey].price),
+              extraBedAllowed: toBooleanFlag(row["Extra Bed Allowed"], nextSettings[roomKey].extraBedAllowed),
+            };
+          }
         }
 
         const extraBedPolicyRow = (Array.isArray(policiesData) ? policiesData : []).find(

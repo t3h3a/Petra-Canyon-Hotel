@@ -31,8 +31,8 @@ const ROOMS_API =
   "https://opensheet.elk.sh/1YUsCLjsVjk6MJjHld4Hep3OiOgRQL6MFSVKjUeZMX5s/Rooms";
 const POLICIES_API =
   "https://opensheet.elk.sh/1YUsCLjsVjk6MJjHld4Hep3OiOgRQL6MFSVKjUeZMX5s/Policies";
-const WHATSAPP_NUMBER = "9627XXXXXXXX";
-const EMAIL_ADDRESS = "hotel@email.com";
+const HOTEL_EMAIL = "tthhaaeeeerr@gmail.com";
+const HOTEL_PHONE = "962779460107"; // without + for WhatsApp URL
 
 function parsePrice(value: string | undefined) {
   const parsed = Number((value || "").replace(/[^\d.]/g, ""));
@@ -168,15 +168,16 @@ Sent from hotel website
   const handleWhatsappBooking = () => {
     const message = buildMessage();
     window.open(
-      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+      `https://wa.me/${HOTEL_PHONE}?text=${encodeURIComponent(message)}`,
       "_blank",
     );
   };
 
   const handleEmailBooking = () => {
     const message = buildMessage();
+    const subject = encodeURIComponent("طلب حجز جديد");
     window.location.href =
-      `mailto:${EMAIL_ADDRESS}?subject=Booking Request&body=${encodeURIComponent(message)}`;
+      `mailto:${HOTEL_EMAIL}?subject=${subject}&body=${encodeURIComponent(message)}`;
   };
 
   return (

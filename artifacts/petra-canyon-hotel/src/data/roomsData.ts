@@ -36,9 +36,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.room,
     size: "22 mآ²",
     name: {
-      en: "Standard Single Room",
-      ar: "ط؛ط±ظپط© ظ…ظپط±ط¯ط© ظ‚ظٹط§ط³ظٹط©",
-      fr: "Chambre Simple Standard",
+      en: "Single",
+      ar: "Single",
+      fr: "Single",
     },
     occupancy: {
       en: "Sleeps 1",
@@ -69,9 +69,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.room,
     size: "29 mآ²",
     name: {
-      en: "Standard Double Room",
-      ar: "ط؛ط±ظپط© ظ…ط²ط¯ظˆط¬ط© ظ‚ظٹط§ط³ظٹط©",
-      fr: "Chambre Double Standard",
+      en: "Standard Twin/Double",
+      ar: "Standard Twin/Double",
+      fr: "Standard Twin/Double",
     },
     occupancy: {
       en: "Sleeps 2",
@@ -102,9 +102,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.room,
     size: "29 mآ²",
     name: {
-      en: "Standard Twin Room",
-      ar: "ط؛ط±ظپط© طھظˆط£ظ… ظ‚ظٹط§ط³ظٹط©",
-      fr: "Chambre Lits Jumeaux Standard",
+      en: "Standard Twin/Double",
+      ar: "Standard Twin/Double",
+      fr: "Standard Twin/Double",
     },
     occupancy: {
       en: "Sleeps 2",
@@ -135,9 +135,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.hero,
     size: "36 mآ²",
     name: {
-      en: "Deluxe Double Room",
-      ar: "ط؛ط±ظپط© ظ…ط²ط¯ظˆط¬ط© ط¯ظٹظ„ظˆظƒط³",
-      fr: "Chambre Double Deluxe",
+      en: "Deluxe Twin/Double",
+      ar: "Deluxe Twin/Double",
+      fr: "Deluxe Twin/Double",
     },
     occupancy: {
       en: "Sleeps 2",
@@ -169,9 +169,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.hero,
     size: "36 mآ²",
     name: {
-      en: "Deluxe Twin Room",
-      ar: "ط؛ط±ظپط© طھظˆط£ظ… ط¯ظٹظ„ظˆظƒط³",
-      fr: "Chambre Lits Jumeaux Deluxe",
+      en: "Deluxe Twin/Double",
+      ar: "Deluxe Twin/Double",
+      fr: "Deluxe Twin/Double",
     },
     occupancy: {
       en: "Sleeps 2",
@@ -202,9 +202,9 @@ export const roomCatalog: RoomCatalogItem[] = [
     image: siteImages.room,
     size: "39 mآ²",
     name: {
-      en: "Triple Room",
-      ar: "ط؛ط±ظپط© ط«ظ„ط§ط«ظٹط©",
-      fr: "Chambre Triple",
+      en: "Triple",
+      ar: "Triple",
+      fr: "Triple",
     },
     occupancy: {
       en: "Sleeps 3",
@@ -236,7 +236,7 @@ export const roomCatalog: RoomCatalogItem[] = [
     size: "63 mآ²",
     name: {
       en: "Suite",
-      ar: "ط¬ظ†ط§ط­",
+      ar: "Suite",
       fr: "Suite",
     },
     occupancy: {
@@ -270,8 +270,8 @@ export const roomCatalog: RoomCatalogItem[] = [
     size: "68 mآ²",
     name: {
       en: "Presidential Suite",
-      ar: "ط§ظ„ط¬ظ†ط§ط­ ط§ظ„ط±ط¦ط§ط³ظٹ",
-      fr: "Suite Prأ©sidentielle",
+      ar: "Presidential Suite",
+      fr: "Presidential Suite",
     },
     occupancy: {
       en: "Sleeps 2",

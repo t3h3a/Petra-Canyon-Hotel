@@ -30,11 +30,11 @@ export const translations = {
     rooms: {
       title: "Rooms & Suites",
       standard: {
-        name: "Standard Room",
+        name: "Standard Twin/Double",
         desc: "Comfortable rooms with mountain views, AC, minibar, and a flat-screen TV.",
       },
       deluxe: {
-        name: "Deluxe Room",
+        name: "Deluxe Twin/Double",
         desc: "Spacious deluxe rooms with canyon panoramas and elevated amenities.",
       },
       presidential: {
@@ -42,7 +42,7 @@ export const translations = {
         desc: "Luxurious suite with a rainfall shower, jacuzzi, blackout drapes, and panoramic views.",
       },
       triple: {
-        name: "Triple Room",
+        name: "Triple",
         desc: "Ideal for families, with additional space and all core comforts.",
       },
       book: "View Details",
@@ -116,19 +116,19 @@ export const translations = {
     rooms: {
       title: "\u0627\u0644\u063A\u0631\u0641 \u0648\u0627\u0644\u0623\u062C\u0646\u062D\u0629",
       standard: {
-        name: "\u063A\u0631\u0641\u0629 \u0642\u064A\u0627\u0633\u064A\u0629",
+        name: "Standard Twin/Double",
         desc: "\u063A\u0631\u0641\u0629 \u0645\u0631\u064A\u062D\u0629 \u0628\u0625\u0637\u0644\u0627\u0644\u0629 \u062C\u0628\u0644\u064A\u0629 \u0645\u0639 \u062A\u0643\u064A\u064A\u0641 \u0648\u0645\u064A\u0646\u064A \u0628\u0627\u0631 \u0648\u062A\u0644\u0641\u0627\u0632 \u0628\u0634\u0627\u0634\u0629 \u0645\u0633\u0637\u062D\u0629.",
       },
       deluxe: {
-        name: "\u063A\u0631\u0641\u0629 \u062F\u064A\u0644\u0648\u0643\u0633",
+        name: "Deluxe Twin/Double",
         desc: "\u063A\u0631\u0641\u0629 \u0648\u0627\u0633\u0639\u0629 \u0628\u0625\u0637\u0644\u0627\u0644\u0627\u062A \u0628\u0627\u0646\u0648\u0631\u0627\u0645\u064A\u0629 \u0639\u0644\u0649 \u0627\u0644\u0648\u0627\u062F\u064A \u0645\u0639 \u0645\u0632\u0627\u064A\u0627 \u0625\u0642\u0627\u0645\u0629 \u0645\u0645\u064A\u0632\u0629.",
       },
       presidential: {
-        name: "\u0627\u0644\u062C\u0646\u0627\u062D \u0627\u0644\u0631\u0626\u0627\u0633\u064A",
+        name: "Presidential Suite",
         desc: "\u062C\u0646\u0627\u062D \u0641\u0627\u062E\u0631 \u0645\u0639 \u062C\u0627\u0643\u0648\u0632\u064A \u0648\u062F\u0634 \u0645\u0637\u0631\u064A \u0648\u0633\u062A\u0627\u0626\u0631 \u062A\u0639\u062A\u064A\u0645 \u0648\u0625\u0637\u0644\u0627\u0644\u0627\u062A \u0628\u0627\u0646\u0648\u0631\u0627\u0645\u064A\u0629.",
       },
       triple: {
-        name: "\u063A\u0631\u0641\u0629 \u062B\u0644\u0627\u062B\u064A\u0629",
+        name: "Triple",
         desc: "\u0645\u062B\u0627\u0644\u064A\u0629 \u0644\u0644\u0639\u0627\u0626\u0644\u0627\u062A \u0645\u0639 \u0645\u0633\u0627\u062D\u0629 \u0625\u0636\u0627\u0641\u064A\u0629 \u0648\u0643\u0644 \u0648\u0633\u0627\u0626\u0644 \u0627\u0644\u0631\u0627\u062D\u0629.",
       },
       book: "\u0639\u0631\u0636 \u0627\u0644\u062A\u0641\u0627\u0635\u064A\u0644",
@@ -202,19 +202,19 @@ export const translations = {
     rooms: {
       title: "Chambres et Suites",
       standard: {
-        name: "Chambre Standard",
+        name: "Standard Twin/Double",
         desc: "Chambre confortable avec vue sur la montagne, climatisation, minibar et t\u00E9l\u00E9vision \u00E0 \u00E9cran plat.",
       },
       deluxe: {
-        name: "Chambre Deluxe",
+        name: "Deluxe Twin/Double",
         desc: "Chambre spacieuse avec panorama sur le canyon et prestations haut de gamme.",
       },
       presidential: {
-        name: "Suite Pr\u00E9sidentielle",
+        name: "Presidential Suite",
         desc: "Suite luxueuse avec jacuzzi, douche pluie, rideaux occultants et vues panoramiques.",
       },
       triple: {
-        name: "Chambre Triple",
+        name: "Triple",
         desc: "Id\u00E9ale pour les familles avec plus d'espace et tout le confort n\u00E9cessaire.",
       },
       book: "Voir les d\u00E9tails",
