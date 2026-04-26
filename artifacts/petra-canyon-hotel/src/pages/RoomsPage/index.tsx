@@ -37,6 +37,7 @@ export default function RoomsPage() {
                   image={room.image}
                   title={localizedRoom.name}
                   description={localizedRoom.description}
+                  descriptionLanguage={language}
                   perks={localizedRoom.perks}
                   size={room.size}
                   view={localizedRoom.view}

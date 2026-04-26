@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { hotelLocationInfo as defaultHotelLocationInfo } from "@/data/hotelInfo";
-import { roomCatalog as defaultRoomCatalog, type RoomCatalogItem } from "@/data/roomsData";
+import { roomCatalog as defaultRoomCatalog, type RoomCatalogItem, type RoomKey } from "@/data/roomsData";
 
 export type LocalizedText = { en: string; ar: string; fr: string };
 
@@ -34,6 +34,92 @@ export type SiteContent = {
   homePage: HomePageContent;
   rooms: RoomCatalogItem[];
 };
+
+type SheetRoomRow = Record<string, string | undefined> & {
+  id?: string;
+  key?: string;
+  name_en?: string;
+  name_ar?: string;
+  name_fr?: string;
+  desc_en?: string;
+  desc_ar?: string;
+  desc_fr?: string;
+};
+
+const sheetRoomKeyMap: Record<string, RoomKey[]> = {
+  single: ["standardSingle"],
+  standard: ["standardDouble", "standardTwin"],
+  standardtwindouble: ["standardDouble", "standardTwin"],
+  deluxe: ["deluxeDouble", "deluxeTwin"],
+  deluxetwindouble: ["deluxeDouble", "deluxeTwin"],
+  triple: ["superiorTriple"],
+  suite: ["suite"],
+  presidential: ["presidentialSuite"],
+  presidentialsuite: ["presidentialSuite"],
+};
+
+function normalizeKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function getSheetRoomKeys(row: SheetRoomRow) {
+  const rawKey = row.key ?? row.id ?? row.name_en;
+  return rawKey ? sheetRoomKeyMap[normalizeKey(rawKey)] ?? [] : [];
+}
+
+function withoutInlineSheetDescriptions(room: RoomCatalogItem): RoomCatalogItem {
+  return {
+    ...room,
+    description: {
+      en: "",
+      ar: "",
+      fr: "",
+    },
+  };
+}
+
+function buildRoomsFromSheet(rows?: SheetRoomRow[]) {
+  const defaultRooms = defaultRoomCatalog.map(withoutInlineSheetDescriptions);
+  if (!Array.isArray(rows)) {
+    return defaultRooms;
+  }
+
+  const nextRooms = defaultRooms.map((room) => ({ ...room }));
+
+  for (const row of rows) {
+    const roomKeys = getSheetRoomKeys(row);
+    if (!roomKeys.length) {
+      continue;
+    }
+
+    for (const roomKey of roomKeys) {
+      const room = nextRooms.find((item) => item.key === roomKey);
+      if (!room) {
+        continue;
+      }
+
+      room.name = {
+        en: row.name_en?.trim() || room.name.en,
+        ar: row.name_ar?.trim() || room.name.ar,
+        fr: row.name_fr?.trim() || room.name.fr,
+      };
+      room.description = {
+        en: row.desc_en ?? "",
+        ar: row.desc_ar ?? "",
+        fr: row.desc_fr ?? "",
+      };
+    }
+  }
+
+  return nextRooms;
+}
+
+function buildSiteContentFromSheet(rows?: SheetRoomRow[]): SiteContent {
+  return {
+    ...defaultSiteContent,
+    rooms: buildRoomsFromSheet(rows),
+  };
+}
 
 export const defaultHomePageContent: HomePageContent = {
   badge: { en: "Petra Canyon Hotel", ar: "فندق بترا كانيون", fr: "Hotel Petra Canyon" },
@@ -102,7 +188,7 @@ export const defaultHomePageContent: HomePageContent = {
 export const defaultSiteContent: SiteContent = {
   hotelInfo: defaultHotelLocationInfo,
   homePage: defaultHomePageContent,
-  rooms: defaultRoomCatalog,
+  rooms: buildRoomsFromSheet(),
 };
 
 const ROOMS_API =
@@ -114,7 +200,7 @@ function mergeSiteContent(partial?: Partial<SiteContent> | null): SiteContent {
   }
 
   const roomOverrides = Array.isArray(partial.rooms) ? partial.rooms : [];
-  const mergedRooms = defaultRoomCatalog.map((room) => {
+  const mergedRooms = defaultSiteContent.rooms.map((room) => {
     const override = roomOverrides.find((item) => item?.key === room.key);
     return override ? { ...room, ...override, image: room.image } : room;
   });
@@ -151,9 +237,9 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
   const refresh = async () => {
     try {
       const response = await fetch(ROOMS_API);
-      const data = await response.json();
+      const data = await response.json() as SheetRoomRow[];
       console.log("Rooms:", data);
-      setContent(defaultSiteContent);
+      setContent(buildSiteContentFromSheet(data));
     } catch {
       setContent(defaultSiteContent);
     }
@@ -165,10 +251,10 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
     async function load() {
       try {
         const response = await fetch(ROOMS_API);
-        const data = await response.json();
+        const data = await response.json() as SheetRoomRow[];
         console.log("Rooms:", data);
         if (!cancelled) {
-          setContent(defaultSiteContent);
+          setContent(buildSiteContentFromSheet(data));
         }
       } catch {
         if (!cancelled) {

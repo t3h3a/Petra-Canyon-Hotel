@@ -5,9 +5,9 @@ import type { RoomKey } from "@/data";
 
 type SheetRoomRow = {
   id?: string;
-  "Room Type"?: string;
-  Price?: string;
-  "Extra Bed Allowed"?: string;
+  name_en?: string;
+  price?: string;
+  extra_bed_allowed?: string;
 };
 
 type SheetPolicyRow = {
@@ -132,7 +132,7 @@ function mapRoomRowToKeys(row: SheetRoomRow): RoomKey[] {
     return idKeys;
   }
 
-  return row["Room Type"] ? roomTypeAliasMap[normalize(row["Room Type"])] ?? [] : [];
+  return row.name_en ? roomTypeAliasMap[normalize(row.name_en)] ?? [] : [];
 }
 
 export function formatRoomPrice(price: number) {
@@ -228,10 +228,10 @@ export function useSheetRoomData(): SheetRoomState {
           throw new Error("Unable to fetch Google Sheets data.");
         }
 
-        const [roomsData, policiesData] = (await Promise.all([
+        const [roomsData, policiesData] = await Promise.all([
           roomsResponse.json(),
           policiesResponse.json(),
-        ])) as [SheetRoomRow[], SheetPolicyRow[]];
+        ]) as [SheetRoomRow[], SheetPolicyRow[]];
         console.log("Rooms:", roomsData);
 
         const nextSettings: Record<RoomKey, RoomSheetSettings> = {
@@ -246,8 +246,8 @@ export function useSheetRoomData(): SheetRoomState {
 
           for (const roomKey of roomKeys) {
             nextSettings[roomKey] = {
-              price: parseNumber(row.Price, nextSettings[roomKey].price),
-              extraBedAllowed: toBooleanFlag(row["Extra Bed Allowed"], nextSettings[roomKey].extraBedAllowed),
+              price: parseNumber(row.price, nextSettings[roomKey].price),
+              extraBedAllowed: toBooleanFlag(row.extra_bed_allowed, nextSettings[roomKey].extraBedAllowed),
             };
           }
         }

@@ -185,9 +185,14 @@ export function BookingForm({
           <p className="text-sm font-semibold text-foreground">{labels.totalEstimate}</p>
           <p className="mt-1 text-2xl font-semibold text-primary">{estimate}</p>
         </div>
-        <Button type="submit" disabled={submitting} className="h-12 rounded-full px-6 text-sm font-semibold disabled:opacity-70">
-          {submitting ? labels.sending : labels.send}
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button type="submit" data-booking-channel="whatsapp" disabled={submitting} className="h-12 rounded-full px-6 text-sm font-semibold disabled:opacity-70">
+            {submitting ? labels.sending : labels.send}
+          </Button>
+          <Button type="submit" data-booking-channel="email" disabled={submitting} className="h-12 rounded-full px-6 text-sm font-semibold disabled:opacity-70">
+            {labels.emailSend}
+          </Button>
+        </div>
       </div>
     </form>
   );

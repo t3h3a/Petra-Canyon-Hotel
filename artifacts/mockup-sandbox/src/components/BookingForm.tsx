@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 type RoomApiRow = {
-  "Room Type"?: string;
-  Price?: string;
-  "Extra Bed Allowed"?: string;
+  name_en?: string;
+  price?: string;
+  extra_bed_allowed?: string;
 };
 
 type PolicyApiRow = {
@@ -37,6 +37,10 @@ const HOTEL_PHONE = "962779460107"; // without + for WhatsApp URL
 function parsePrice(value: string | undefined) {
   const parsed = Number((value || "").replace(/[^\d.]/g, ""));
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function getRoomName(room: RoomApiRow | undefined) {
+  return room?.name_en?.trim() || "";
 }
 
 function toYesNo(value: boolean) {
@@ -82,7 +86,7 @@ export default function BookingForm() {
         setPolicies(Array.isArray(policiesData) ? policiesData : []);
         setForm((current) => ({
           ...current,
-          roomType: current.roomType || nextRooms[0]?.["Room Type"] || "",
+          roomType: current.roomType || getRoomName(nextRooms[0]) || "",
         }));
         setLoading(false);
       })
@@ -103,14 +107,14 @@ export default function BookingForm() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const selectedRoom = rooms.find((room) => room["Room Type"] === form.roomType) || null;
-  const extraBedAllowed = (selectedRoom?.["Extra Bed Allowed"] || "").trim().toLowerCase() === "yes";
+  const selectedRoom = rooms.find((room) => getRoomName(room) === form.roomType) || null;
+  const extraBedAllowed = (selectedRoom?.extra_bed_allowed || "").trim().toLowerCase() === "yes";
   const effectiveExtraBedEnabled = Boolean(extraBedAllowed && form.extraBed);
   const extraBedPrice =
     parsePrice(
       policies.find((policy) => policy["Policy Key"]?.trim().toLowerCase() === "extra_bed_price")?.Value,
     ) || 0;
-  const selectedRoomPrice = parsePrice(selectedRoom?.Price);
+  const selectedRoomPrice = parsePrice(selectedRoom?.price);
 
   const buildMessage = () => {
     const checkin = form.checkin || "Not specified";
@@ -206,9 +210,9 @@ Sent from hotel website
       {rooms.length > 0 ? (
         <div className="mb-6 grid gap-3 sm:grid-cols-2">
           {rooms.map((room) => (
-            <div key={room["Room Type"]} className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-right">
-              <h3 className="text-sm font-semibold text-gray-900">{room["Room Type"]}</h3>
-              <p className="mt-1 text-sm text-gray-600">{parsePrice(room.Price)} JOD</p>
+            <div key={getRoomName(room)} className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-right">
+              <h3 className="text-sm font-semibold text-gray-900">{getRoomName(room)}</h3>
+              <p className="mt-1 text-sm text-gray-600">{parsePrice(room.price)} JOD</p>
             </div>
           ))}
         </div>
@@ -295,8 +299,8 @@ Sent from hotel website
           >
             <option value="">اختر الغرفة</option>
             {rooms.map((room) => (
-              <option key={room["Room Type"]} value={room["Room Type"]}>
-                {room["Room Type"]} - {parsePrice(room.Price)} JOD
+              <option key={getRoomName(room)} value={getRoomName(room)}>
+                {getRoomName(room)} - {parsePrice(room.price)} JOD
               </option>
             ))}
           </select>

@@ -13,7 +13,7 @@ import {
   ROOM_INCLUDED_GUESTS,
   useSheetRoomData,
 } from "@/lib/sheet-room-data";
-import { getLocalizedRoom, HOTEL_PHONE, siteImages, type RoomKey } from "@/data";
+import { getLocalizedRoom, HOTEL_EMAIL, HOTEL_PHONE, siteImages, type RoomKey } from "@/data";
 import { useSiteContent } from "@/lib/site-content";
 
 type RoomSelection = {
@@ -63,6 +63,7 @@ const copyByLanguage = {
     estimateBody: "This is an approximate amount based on the live room prices and extra-bed policy. Final confirmation remains with the hotel.",
     totalEstimate: "Approximate total",
     send: "Send reservation request",
+    emailSend: "Send via Email",
     sending: "Sending request...",
     roomsHint: "Adjust the guest mix in each room before sending the request.",
     successTitle: "Reservation request sent",
@@ -104,6 +105,7 @@ const copyByLanguage = {
     estimateBody: "هذا مبلغ تقريبي حسب الأسعار المباشرة وسياسة السرير الإضافي، والتأكيد النهائي يكون من الفندق.",
     totalEstimate: "الإجمالي التقريبي",
     send: "إرسال طلب الحجز",
+    emailSend: "Send via Email",
     sending: "جارٍ إرسال الطلب...",
     roomsHint: "وزّع الضيوف على الغرف قبل إرسال الطلب.",
     successTitle: "تم إرسال طلب الحجز",
@@ -145,6 +147,7 @@ const copyByLanguage = {
     estimateBody: "Montant indicatif basé sur les tarifs en direct et la politique du lit supplémentaire.",
     totalEstimate: "Total estimatif",
     send: "Envoyer la demande",
+    emailSend: "Send via Email",
     sending: "Envoi en cours...",
     roomsHint: "Répartissez les voyageurs entre les chambres avant l'envoi.",
     successTitle: "Demande envoyée",
@@ -299,10 +302,18 @@ ${form.notes || "No notes"}
 Sent from hotel website
 `.trim();
 
-    window.open(
-      `https://wa.me/${HOTEL_PHONE}?text=${encodeURIComponent(message)}`,
-      "_blank",
-    );
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLElement | null;
+    const channel = submitter?.dataset.bookingChannel ?? "whatsapp";
+
+    if (channel === "email") {
+      const subject = encodeURIComponent("طلب حجز جديد");
+      window.location.href = `mailto:${HOTEL_EMAIL}?subject=${subject}&body=${encodeURIComponent(message)}`;
+    } else {
+      window.open(
+        `https://wa.me/${HOTEL_PHONE}?text=${encodeURIComponent(message)}`,
+        "_blank",
+      );
+    }
     setIsSent(true);
     setIsSubmitting(false);
   };
@@ -386,6 +397,7 @@ Sent from hotel website
                 estimateBody: copy.estimateBody,
                 totalEstimate: copy.totalEstimate,
                 send: copy.send,
+                emailSend: copy.emailSend,
                 sending: copy.sending,
                 roomsHint: copy.roomsHint,
               }}

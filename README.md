@@ -17,7 +17,7 @@ This starts the hotel app from `artifacts/petra-canyon-hotel`.
 
 The frontend reads room pricing and policy data directly from Google Sheets:
 
-- `Rooms`
+- `Rooms`: `id`, `name_en`, `name_ar`, `name_fr`, `desc_en`, `desc_ar`, `desc_fr`, `price`, `extra_bed_allowed`
 - `Policies`
 
 No backend service is required for local development or deployment.

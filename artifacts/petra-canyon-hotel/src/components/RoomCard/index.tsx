@@ -18,6 +18,7 @@ type RoomCardProps = {
   extraBedNote?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
+  descriptionLanguage?: "en" | "ar" | "fr";
 };
 
 export function RoomCard({
@@ -37,7 +38,10 @@ export function RoomCard({
   extraBedNote,
   secondaryLabel,
   secondaryHref,
+  descriptionLanguage = "en",
 }: RoomCardProps) {
+  const isArabicDescription = descriptionLanguage === "ar";
+
   return (
     <article className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
       <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
@@ -61,7 +65,29 @@ export function RoomCard({
           </div>
 
           <h2 className="mt-5 text-3xl font-serif">{title}</h2>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{description}</p>
+          {isArabicDescription ? (
+            <div
+              dir="rtl"
+              lang="ar"
+              style={{
+                fontFamily: "Noto Sans Arabic, sans-serif",
+                textAlign: "right"
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  lineHeight: "1.7",
+                  letterSpacing: "normal",
+                  textTransform: "none"
+                }}
+              >
+                {description}
+              </p>
+            </div>
+          ) : (
+            <p>{description}</p>
+          )}
 
           <div className="mt-6 flex items-center gap-2 text-sm text-foreground/80">
             <Users className="h-4 w-4 text-primary" />

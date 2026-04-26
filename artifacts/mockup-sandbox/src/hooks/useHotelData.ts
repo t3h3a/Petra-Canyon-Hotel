@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
 type RoomApiRow = {
-  "Room Type"?: string;
-  Price?: string;
-  "Extra Bed Allowed"?: string;
+  name_en?: string;
+  price?: string;
+  extra_bed_allowed?: string;
 };
 
 type PolicyApiRow = {
@@ -73,9 +73,9 @@ export function useHotelData(): HotelDataState {
 
         const rooms = (Array.isArray(roomsJson) ? roomsJson : [])
           .map((room) => ({
-            roomType: room["Room Type"]?.trim() || "",
-            price: parsePrice(room.Price),
-            extraBedAllowed: parseExtraBedAllowed(room["Extra Bed Allowed"]),
+            roomType: room.name_en?.trim() || "",
+            price: parsePrice(room.price),
+            extraBedAllowed: parseExtraBedAllowed(room.extra_bed_allowed),
           }))
           .filter((room) => room.roomType);
 
